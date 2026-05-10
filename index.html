@@ -2,391 +2,252 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Chess Club Members</title>
 
 <style>
+  body{
+    background:#0F172A;
+    margin:0;
+    border:2px solid #1E293B;
+    min-height:100vh;
+    box-sizing:border-box;
+    border-radius:2px;
+    color:#E2E8F0;
+    transition:background 1s ease,border-color 1s ease;
+  }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
+  .mainBox{
+    max-width:300px;
+    margin:auto;
+    padding:14px;
+    border-radius:2px;
+    background:#0F172A;
+    text-align:center;
+    color:#E2E8F0;
+    border:2px solid #1E293B;
+    transition:background 1s ease,border-color 1s ease,box-shadow 1s ease;
+  }
 
-body{
-  min-height:100vh;
-  background:
-  linear-gradient(rgba(3,8,20,.88),rgba(3,8,20,.96)),
-  url('https://images.unsplash.com/photo-1528819622765-d6bcf132f793?q=80&w=1200&auto=format&fit=crop') center/cover;
-  font-family:Georgia,serif;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:20px;
-  color:white;
-}
+  .themeText{
+    transition:color 1s ease,text-shadow 1s ease;
+  }
 
-.club-box{
-  width:350px;
-  background:#0f1d33;
-  border:1px solid rgba(120,170,255,.2);
-  padding:25px;
-  position:relative;
-  overflow:hidden;
-  box-shadow:
-  0 0 25px rgba(0,0,0,.5),
-  inset 0 0 20px rgba(255,255,255,.03);
-}
+  .line{
+    height:1px;
+    background:rgba(226,232,240,0.2);
+    margin:8px 20px;
+  }
 
-.club-box::before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:3px;
-  background:linear-gradient(90deg,#3b82f6,#ff944d,#3b82f6);
-}
-
-.heading{
-  color:#a9bdd9;
-  letter-spacing:5px;
-  font-size:15px;
-  margin-bottom:25px;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  padding-bottom:12px;
-}
-
-.big-count{
-  text-align:center;
-  margin-bottom:35px;
-}
-
-.big-count h1{
-  font-size:72px;
-  color:#ef944c;
-  text-shadow:0 0 15px rgba(239,148,76,.25);
-}
-
-.big-count p{
-  color:#8da3bf;
-  font-style:italic;
-  font-size:18px;
-}
-
-.timeline{
-  position:relative;
-  padding-left:65px;
-}
-
-.line{
-  position:absolute;
-  left:22px;
-  top:0;
-  width:4px;
-  height:100%;
-  background:#21395b;
-}
-
-.member-row{
-  position:relative;
-  display:flex;
-  align-items:center;
-  gap:16px;
-  margin-bottom:34px;
-}
-
-.dot{
-  position:absolute;
-  left:-54px;
-  width:20px;
-  height:20px;
-  border-radius:50%;
-  background:#ef944c;
-  border:4px solid #ef944c;
-}
-
-.dot.active{
-  width:28px;
-  height:28px;
-  left:-58px;
-  border:4px solid #f7c18f;
-}
-
-.dot.inactive{
-  background:#132540;
-  border-color:#28466e;
-}
-
-.member-label{
-  width:90px;
-  color:#e4c29b;
-  font-size:24px;
-  font-weight:bold;
-}
-
-.member-label.inactive{
-  color:#334a67;
-}
-
-.progress{
-  flex:1;
-  height:12px;
-  background:#203453;
-  border-radius:20px;
-  overflow:hidden;
-}
-
-.progress-fill{
-  height:100%;
-  width:0%;
-  background:linear-gradient(90deg,#f5a657,#ea8337);
-  border-radius:20px;
-  transition:1s;
-}
-
-.status{
-  width:50px;
-  text-align:right;
-  color:#ef944c;
-}
-
-.status.inactive{
-  color:#41597a;
-}
-
-.footer{
-  margin-top:25px;
-  text-align:center;
-  color:#9db0ca;
-  letter-spacing:5px;
-  border-top:1px solid rgba(255,255,255,.06);
-  padding-top:18px;
-  font-size:14px;
-}
-
+  @keyframes discoRGB{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+  }
 </style>
 </head>
 
 <body>
 
-<div class="club-box">
+<div class="mainBox" id="mainBox">
 
-  <div class="heading">
-    👥 MEMBER COUNT
+  <p style="margin:0;">
+    <iframe width="270" height="60"
+      style="border:0;display:block;margin:0;padding:0;border-radius:2px;"
+      src="https://yogeshwarmhatre05-jpg.github.io/Pixel-g/">
+    </iframe>
+  </p>
+
+  <div class="themeText" id="welcomeText"
+    style="font-size:15px;letter-spacing:2px;color:#22C55E;overflow:hidden;">
+    <marquee behavior="scroll" direction="left" scrollamount="3">
+      ♣Welcome to Our Club♣
+    </marquee>
   </div>
 
-  <div class="big-count">
-    <h1 id="memberCount">0</h1>
-    <p>members</p>
+  <br>
+
+  <div style="font-size:11px;letter-spacing:3px;">
+    <span class="themeText" id="ownerText"
+      style="font-size:14px;color:#22C55E;">
+      ✧ 𝐎 𝐖 𝐍 𝐄 𝐑 ✧
+    </span>
   </div>
 
-  <div class="timeline">
-    <div class="line"></div>
-
-    <div id="levels"></div>
+  <div style="font-size:22px;font-weight:900;margin-top:6px;">
+    <img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/yogi136/php8h3mmr9lb0qd8ZyClyS.png"
+      style="display:block;margin:0 auto;border-radius:2px;"
+      width="100"
+      height="100">
   </div>
 
-  <div class="footer">
-    KEEP THE ETERNAL SPIRIT ALIVE
+  <div id="yogiText"
+    class="themeText"
+    style="
+      font-size:22px;
+      font-weight:900;
+      margin-top:6px;
+      font-family:cursive;
+      color:#22C55E;
+    ">
+    √𝓎𝓸𝓰𝓲136
+  </div>
+
+  <div class="line"></div>
+
+  <div style="font-size:12px;font-style:italic;">
+    “Think like a King. Play like a Master.”
+  </div>
+
+  <br>
+
+  <!-- PLAYER -->
+  <div style="display:flex;justify-content:center;">
+    <iframe
+      id="musicPlayer"
+      width="280"
+      height="215"
+      style="border:none;border-radius:2px;"
+      src="https://yogeshwarmhatre05-jpg.github.io/Player/">
+    </iframe>
+  </div>
+
+  <br>
+
+  <iframe
+    src="https://yogeshwarmhatre05-jpg.github.io/Flappy-game/"
+    width="250"
+    height="250"
+    style="border:none;border-radius:2px;"
+    scrolling="no">
+  </iframe>
+</div>
+
+<br>
+
+<div style="display:flex;justify-content:center;">
+  <iframe width="255" height="255"
+    style="border:none;border-radius:2px;"
+    src="https://yogeshwarmhatre05-jpg.github.io/Calend-orig/">
+  </iframe>
+</div>
+
+<br>
+
+<div style="
+  display:flex;
+  justify-content:center;
+  padding:10px;
+  background:#0F172A;
+">
+  <iframe
+    src="https://yogeshwarmhatre05-jpg.github.io/Official-last-part/"
+    width="300"
+    height="200"
+    style="
+      border:2px solid #1E293B;
+      border-radius:12px;
+      overflow:hidden;
+      background:#0F172A;
+    ">
+  </iframe>
+</div>
+
+<br>
+
+<div style="text-align:center;margin-bottom:20px;">
+
+  <div style="
+    font-size:22px;
+    font-weight:900;
+    margin-top:6px;
+    font-family:cursive;
+    background:linear-gradient(90deg,#ff4d4d,#ffcc00,#22c55e,#3b82f6,#a855f7);
+    background-size:300% 300%;
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:discoRGB 6s ease-in-out infinite;
+    display:inline-block;
+  ">
+    Made by yogi136
   </div>
 
 </div>
 
 <script>
-
 /*
-PUT YOUR CHESS CLUB NAME HERE
+  FAKE MUSIC REACTIVE THEME
+  Changes colors automatically like song moods
 */
 
-const clubName = "PixelGlow";
+const themes = [
+  {
+    bg:"#0F172A",
+    border:"#22C55E",
+    glow:"rgba(34,197,94,0.5)",
+    text:"#22C55E"
+  },
 
-/*
-CHESS.COM API
-*/
+  {
+    bg:"#1E1B4B",
+    border:"#A855F7",
+    glow:"rgba(168,85,247,0.5)",
+    text:"#A855F7"
+  },
 
-const apiUrl =
-`https://api.chess.com/pub/club/PixelGlow`;
+  {
+    bg:"#111827",
+    border:"#3B82F6",
+    glow:"rgba(59,130,246,0.5)",
+    text:"#3B82F6"
+  },
 
-const levels = [
-  0,
-  100,
-  500,
-  1000,
-  2000,
-  5000,
-  10000,
-  50000
+  {
+    bg:"#2A0F0F",
+    border:"#FF4D4D",
+    glow:"rgba(255,77,77,0.5)",
+    text:"#FF4D4D"
+  },
+
+  {
+    bg:"#1A1A00",
+    border:"#FFCC00",
+    glow:"rgba(255,204,0,0.5)",
+    text:"#FFCC00"
+  }
 ];
 
-const memberCountText =
-document.getElementById("memberCount");
+let index = 0;
 
-const levelContainer =
-document.getElementById("levels");
+function changeTheme(){
 
-/*
-ANIMATE NUMBER
-*/
+  const theme = themes[index];
 
-function animateNumber(start,end){
+  document.body.style.background = theme.bg;
+  document.body.style.borderColor = theme.border;
 
-  let current = start;
+  const box = document.getElementById("mainBox");
+  box.style.background = theme.bg;
+  box.style.borderColor = theme.border;
+  box.style.boxShadow = `0 0 25px ${theme.glow}`;
 
-  const speed =
-  Math.ceil(end / 50);
-
-  const timer = setInterval(()=>{
-
-    current += speed;
-
-    if(current >= end){
-      current = end;
-      clearInterval(timer);
-    }
-
-    memberCountText.textContent =
-    current.toLocaleString();
-
-  },20);
-}
-
-/*
-RENDER LEVELS
-*/
-
-function renderLevels(memberCount){
-
-  levelContainer.innerHTML = "";
-
-  levels.forEach(level=>{
-
-    const row =
-    document.createElement("div");
-
-    row.className = "member-row";
-
-    const dot =
-    document.createElement("div");
-
-    dot.className = "dot";
-
-    const label =
-    document.createElement("div");
-
-    label.className = "member-label";
-
-    label.textContent =
-    level.toLocaleString();
-
-    const progress =
-    document.createElement("div");
-
-    progress.className = "progress";
-
-    const fill =
-    document.createElement("div");
-
-    fill.className = "progress-fill";
-
-    const status =
-    document.createElement("div");
-
-    status.className = "status";
-
-    let percent = 0;
-
-    if(memberCount >= level){
-
-      percent = 100;
-
-      status.textContent = "✓";
-    }
-
-    else if(memberCount > level - 100){
-
-      percent =
-      memberCount - (level - 100);
-
-      dot.classList.add("active");
-
-      status.textContent =
-      percent + "%";
-    }
-
-    else{
-
-      percent = 0;
-
-      dot.classList.add("inactive");
-
-      label.classList.add("inactive");
-
-      status.classList.add("inactive");
-    }
-
-    fill.style.width =
-    percent + "%";
-
-    progress.appendChild(fill);
-
-    row.appendChild(dot);
-    row.appendChild(label);
-    row.appendChild(progress);
-    row.appendChild(status);
-
-    levelContainer.appendChild(row);
-
+  document.querySelectorAll(".themeText").forEach(el=>{
+    el.style.color = theme.text;
+    el.style.textShadow = `0 0 12px ${theme.glow}`;
   });
 
+  index++;
+  if(index >= themes.length){
+    index = 0;
+  }
 }
 
 /*
-LOAD CHESS CLUB MEMBERS
+  Change every 6 seconds
+  Feels synced with music
 */
 
-async function loadMembers(){
+setInterval(changeTheme, 6000);
 
-  try{
-
-    const response =
-    await fetch(apiUrl);
-
-    const data =
-    await response.json();
-
-    /*
-    AUTO MEMBER COUNT
-    */
-
-    const memberCount =
-    data.members;
-
-    animateNumber(0,memberCount);
-
-    renderLevels(memberCount);
-
-  }
-
-  catch(error){
-
-    memberCountText.textContent =
-    "Error";
-
-    console.log(error);
-  }
-
-}
-
-loadMembers();
-
-/*
-AUTO REFRESH EVERY 60 SECONDS
-*/
-
-setInterval(loadMembers,60000);
-
+changeTheme();
 </script>
 
 </body>
