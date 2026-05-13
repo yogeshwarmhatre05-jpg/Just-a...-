@@ -1,289 +1,126 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Royal Comment Box</title>
 
 <style>
-body{
-  margin:0;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:#050b1a;
-  font-family:Arial;
-  overflow:hidden;
-}
+  body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: radial-gradient(circle at top, #8b0000, #3b0000);
+    font-family: Arial, sans-serif;
+  }
 
-.board-wrapper{
-  position:relative;
-}
+  .container{
+    width: 420px;
+    background: rgba(0,0,0,0.35);
+    border: 2px solid #ffd700;
+    border-radius: 15px;
+    box-shadow: 0 0 25px rgba(255,215,0,0.4);
+    padding: 15px;
+    backdrop-filter: blur(6px);
+  }
 
-.board{
-  width:420px;
-  height:420px;
-  display:grid;
-  grid-template-columns:repeat(8,1fr);
-  grid-template-rows:repeat(8,1fr);
-  border:10px solid #020617;
-  box-shadow:0 20px 60px rgba(0,0,0,0.6);
-}
+  h2{
+    text-align:center;
+    color:#ffd700;
+    margin-bottom:10px;
+    letter-spacing:1px;
+  }
 
-/* SOFT EYE-RELAXING COLORS */
-.white{
-  background:linear-gradient(145deg,#e8eef5,#cfd8e3);
-}
+  textarea{
+    width:100%;
+    height:80px;
+    border-radius:10px;
+    border:1px solid #ffd700;
+    padding:10px;
+    resize:none;
+    outline:none;
+    background:#1a0000;
+    color:#fff;
+  }
 
-.black{
-  background:linear-gradient(145deg,#4b6584,#2f4858);
-}
+  button{
+    width:100%;
+    margin-top:10px;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    background:#ffd700;
+    color:#3b0000;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+  }
 
-.square{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
+  button:hover{
+    background:#ffcc00;
+  }
 
-.piece{
-  width:85%;
-  height:85%;
-  object-fit:contain;
-  user-select:none;
-  pointer-events:none;
-}
+  .comments{
+    margin-top:15px;
+    max-height:200px;
+    overflow-y:auto;
+    border-top:1px solid #ffd700;
+    padding-top:10px;
+  }
 
-/* coordinates */
-.coord{
-  position:absolute;
-  font-size:12px;
-  color:#cbd5e1;
-  font-weight:bold;
-}
-
-.file{
-  bottom:-22px;
-}
-
-.rank{
-  left:-20px;
-}
-
-/* title */
-.title{
-  position:absolute;
-  top:-45px;
-  left:0;
-  color:white;
-  font-size:15px;
-  font-weight:bold;
-  letter-spacing:1px;
-}
+  .comment{
+    background: rgba(255,255,255,0.08);
+    padding:8px;
+    border-radius:8px;
+    margin-bottom:8px;
+    color:#fff;
+    font-size:14px;
+    border-left:3px solid #ffd700;
+  }
 </style>
 </head>
 
 <body>
 
-<div class="board-wrapper">
+<div class="container">
+  <h2>Royal Message Box</h2>
 
-  <div class="title">
-    Magnus Carlsen vs Veselin Topalov (2010)
-  </div>
+  <textarea id="input" placeholder="Write your message..."></textarea>
+  <button onclick="addComment()">Post Message</button>
 
-  <div class="board" id="board"></div>
-
+  <div class="comments" id="comments"></div>
 </div>
 
 <script>
+  let comments = JSON.parse(localStorage.getItem("comments")) || [];
 
-/* PIECES */
-const img = {
-  P:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
-  R:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
-  N:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png",
-  B:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png",
-  Q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png",
-  K:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png",
-
-  p:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png",
-  r:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png",
-  n:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png",
-  b:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png",
-  q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png",
-  k:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png"
-};
-
-/* START POSITION */
-const startState = [
-  "r","n","b","q","k","b","n","r",
-  "p","p","p","p","p","p","p","p",
-  "","","","","","","","",
-  "","","","","","","","",
-  "","","","","","","","",
-  "","","","","","","","",
-  "P","P","P","P","P","P","P","P",
-  "R","N","B","Q","K","B","N","R"
-];
-
-let state = [...startState];
-
-const board = document.getElementById("board");
-
-/* MOVES */
-const moves = [
-
-[52,36],[11,27],
-[36,27],[3,27],
-[57,42],[27,24],
-[51,35],[6,21],
-[62,45],[10,18],
-[61,34],[2,29],
-[34,43],[12,20],
-[59,52],[29,38],
-castleWhite(),
-[1,18],
-[43,34],
-castleBlack(),
-[55,39],
-[8,16],
-[45,28]
-
-];
-
-/* CASTLING */
-function castleWhite(){
-  return ["castleWhite"];
-}
-
-function castleBlack(){
-  return ["castleBlack"];
-}
-
-/* DRAW */
-function draw(){
-
-  board.innerHTML = "";
-
-  state.forEach((p,i)=>{
-
-    const sq = document.createElement("div");
-
-    const r = Math.floor(i/8);
-    const c = i%8;
-
-    sq.className =
-      "square " + ((r+c)%2 ? "black" : "white");
-
-    if(p){
-      const im = document.createElement("img");
-      im.className = "piece";
-      im.src = img[p];
-      sq.appendChild(im);
-    }
-
-    board.appendChild(sq);
-
-  });
-
-}
-
-/* COORDINATES */
-function addCoords(){
-
-  const wrapper = document.querySelector(".board-wrapper");
-
-  const files = ["A","B","C","D","E","F","G","H"];
-
-  for(let i=0;i<8;i++){
-
-    const f = document.createElement("div");
-
-    f.className = "coord file";
-    f.style.left = (i*52 + 30) + "px";
-    f.textContent = files[i];
-
-    wrapper.appendChild(f);
+  function render(){
+    const box = document.getElementById("comments");
+    box.innerHTML = "";
+    comments.forEach(c => {
+      const div = document.createElement("div");
+      div.className = "comment";
+      div.textContent = c;
+      box.appendChild(div);
+    });
   }
 
-  for(let i=0;i<8;i++){
+  function addComment(){
+    const input = document.getElementById("input");
+    const text = input.value.trim();
 
-    const r = document.createElement("div");
+    if(text === "") return;
 
-    r.className = "coord rank";
-    r.style.top = (i*52 + 30) + "px";
-    r.textContent = 8-i;
+    comments.push(text);
+    localStorage.setItem("comments", JSON.stringify(comments));
 
-    wrapper.appendChild(r);
-  }
-}
-
-addCoords();
-
-/* RESET */
-function resetBoard(){
-
-  state = [...startState];
-  moveIndex = 0;
-  draw();
-}
-
-/* PLAY LOOP */
-let moveIndex = 0;
-
-function play(){
-
-  if(moveIndex >= moves.length){
-
-    setTimeout(()=>{
-      resetBoard();
-      play();
-    },2500);
-
-    return;
+    input.value = "";
+    render();
   }
 
-  setTimeout(()=>{
-
-    const move = moves[moveIndex];
-
-    if(move[0] === "castleWhite"){
-
-      state[62] = state[60];
-      state[60] = "";
-
-      state[61] = state[63];
-      state[63] = "";
-    }
-
-    else if(move[0] === "castleBlack"){
-
-      state[6] = state[4];
-      state[4] = "";
-
-      state[5] = state[7];
-      state[7] = "";
-    }
-
-    else{
-
-      const [from,to] = move;
-
-      state[to] = state[from];
-      state[from] = "";
-    }
-
-    draw();
-
-    moveIndex++;
-
-    play();
-
-  },700);
-}
-
-/* START */
-draw();
-play();
-
+  render();
 </script>
 
 </body>
