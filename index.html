@@ -10,19 +10,17 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  flex-direction:column;
   background: radial-gradient(circle at top, #8b0000, #1a0000);
   font-family:Arial;
-  overflow:auto;
-  padding:20px;
 }
 
-/* WRAPPER FOR PERFECT CENTER ALIGNMENT */
+/* MAIN WRAPPER */
 .main{
+  width:300px;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:25px;
+  gap:18px;
 }
 
 /* ================= CHESS ================= */
@@ -32,17 +30,16 @@ body{
 }
 
 .board{
-  width:420px;
-  height:420px;
+  width:300px;
+  height:300px;
   display:grid;
   grid-template-columns:repeat(8,1fr);
   grid-template-rows:repeat(8,1fr);
-  border:8px solid #ffd700;
-  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+  border:6px solid #ffd700;
+  box-shadow:0 15px 40px rgba(0,0,0,0.6);
   border-radius:10px;
 }
 
-/* soft chess colors */
 .white{
   background:linear-gradient(145deg,#e8eef5,#cfd8e3);
 }
@@ -64,84 +61,104 @@ body{
   pointer-events:none;
 }
 
+/* coords */
 .coord{
   position:absolute;
-  font-size:12px;
+  font-size:10px;
   color:#ffd700;
   font-weight:bold;
 }
 
-.file{ bottom:-22px; }
-.rank{ left:-20px; }
+.file{ bottom:-18px; }
+.rank{ left:-16px; }
 
 .title{
   position:absolute;
-  top:-45px;
+  top:-35px;
   left:0;
   color:#ffd700;
-  font-size:14px;
+  font-size:12px;
   font-weight:bold;
 }
 
-/* ================= COMMENT BOX ================= */
+/* ================= MESSAGE BOX ================= */
 
 .container{
-  width:420px;
+  width:300px;
   background: rgba(0,0,0,0.35);
   border: 2px solid #ffd700;
-  border-radius: 15px;
-  box-shadow: 0 0 25px rgba(255,215,0,0.3);
-  padding: 15px;
-  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255,215,0,0.25);
+  padding: 10px;
 }
 
 h2{
   text-align:center;
   color:#ffd700;
-  margin:5px 0 10px;
+  margin:5px 0 8px;
+  font-size:16px;
 }
 
+/* auto expanding textarea */
 textarea{
   width:100%;
-  height:80px;
-  border-radius:10px;
+  min-height:50px;
+  max-height:140px;
+  border-radius:8px;
   border:1px solid #ffd700;
-  padding:10px;
+  padding:8px;
   resize:none;
   outline:none;
   background:#1a0000;
   color:#fff;
+  overflow:hidden;
 }
 
 button{
   width:100%;
-  margin-top:10px;
-  padding:10px;
+  margin-top:8px;
+  padding:8px;
   border:none;
-  border-radius:10px;
+  border-radius:8px;
   background:#ffd700;
   color:#3b0000;
   font-weight:bold;
   cursor:pointer;
 }
 
+/* comments */
 .comments{
-  margin-top:12px;
+  margin-top:10px;
   max-height:180px;
   overflow-y:auto;
   border-top:1px solid #ffd700;
-  padding-top:10px;
+  padding-top:8px;
 }
 
 .comment{
+  position:relative;
   background: rgba(255,255,255,0.08);
-  padding:8px;
+  padding:8px 30px 8px 8px;
   border-radius:8px;
   margin-bottom:8px;
   color:#fff;
-  font-size:14px;
+  font-size:13px;
   border-left:3px solid #ffd700;
+  word-wrap:break-word;
 }
+
+/* delete button */
+.delete{
+  position:absolute;
+  right:6px;
+  top:6px;
+  background:none;
+  border:none;
+  color:#ffd700;
+  cursor:pointer;
+  font-size:14px;
+}
+
 </style>
 </head>
 
@@ -149,18 +166,13 @@ button{
 
 <div class="main">
 
-  <!-- ================= CHESS ================= -->
+  <!-- CHESS -->
   <div class="board-wrapper">
-
-    <div class="title">
-      Magnus Carlsen vs Veselin Topalov (2010)
-    </div>
-
+    <div class="title">Magnus Carlsen vs Topalov</div>
     <div class="board" id="board"></div>
-
   </div>
 
-  <!-- ================= COMMENT BOX ================= -->
+  <!-- MESSAGE BOX -->
   <div class="container">
     <h2>Royal Message Box</h2>
 
@@ -202,20 +214,12 @@ const startState = [
 "R","N","B","Q","K","B","N","R"
 ];
 
-let state = [...startState];
-const board = document.getElementById("board");
+let state=[...startState];
+const board=document.getElementById("board");
 
-const moves = [
-[52,36],[11,27],[36,27],[3,27],
-[57,42],[27,24],[51,35],[6,21],
-[62,45],[10,18],[61,34],[2,29],
-[34,43],[12,20],[59,52],[29,38],
-castleWhite(),[1,18],[43,34],
-castleBlack(),[55,39],[8,16],[45,28]
+const moves=[
+[52,36],[11,27],[36,27],[3,27]
 ];
-
-function castleWhite(){ return ["castleWhite"]; }
-function castleBlack(){ return ["castleBlack"]; }
 
 function draw(){
   board.innerHTML="";
@@ -233,15 +237,20 @@ function draw(){
     board.appendChild(sq);
   });
 }
+draw();
+
+/* ================= COORDS FIXED ================= */
 
 function addCoords(){
   const wrapper=document.querySelector(".board-wrapper");
   const files=["A","B","C","D","E","F","G","H"];
 
+  const size = 300/8; // 37.5px
+
   for(let i=0;i<8;i++){
     let f=document.createElement("div");
     f.className="coord file";
-    f.style.left=(i*52+30)+"px";
+    f.style.left=(i*size+18)+"px";
     f.textContent=files[i];
     wrapper.appendChild(f);
   }
@@ -249,53 +258,12 @@ function addCoords(){
   for(let i=0;i<8;i++){
     let r=document.createElement("div");
     r.className="coord rank";
-    r.style.top=(i*52+30)+"px";
+    r.style.top=(i*size+18)+"px";
     r.textContent=8-i;
     wrapper.appendChild(r);
   }
 }
-
 addCoords();
-
-let moveIndex=0;
-
-function resetBoard(){
-  state=[...startState];
-  moveIndex=0;
-  draw();
-}
-
-function play(){
-  if(moveIndex>=moves.length){
-    setTimeout(()=>{resetBoard();play();},2500);
-    return;
-  }
-
-  setTimeout(()=>{
-    const move=moves[moveIndex];
-
-    if(move[0]==="castleWhite"){
-      state[62]=state[60]; state[60]="";
-      state[61]=state[63]; state[63]="";
-    }
-    else if(move[0]==="castleBlack"){
-      state[6]=state[4]; state[4]="";
-      state[5]=state[7]; state[7]="";
-    }
-    else{
-      const [from,to]=move;
-      state[to]=state[from];
-      state[from]="";
-    }
-
-    draw();
-    moveIndex++;
-    play();
-  },700);
-}
-
-draw();
-play();
 
 /* ================= COMMENTS ================= */
 
@@ -304,10 +272,25 @@ let comments = JSON.parse(localStorage.getItem("comments")) || [];
 function render(){
   const box=document.getElementById("comments");
   box.innerHTML="";
-  comments.forEach(c=>{
+
+  comments.forEach((c,i)=>{
     const div=document.createElement("div");
     div.className="comment";
-    div.textContent=c;
+
+    const text=document.createElement("div");
+    text.textContent=c;
+
+    const del=document.createElement("button");
+    del.className="delete";
+    del.innerHTML="🗑️";
+    del.onclick=()=>{
+      comments.splice(i,1);
+      localStorage.setItem("comments",JSON.stringify(comments));
+      render();
+    };
+
+    div.appendChild(text);
+    div.appendChild(del);
     box.appendChild(div);
   });
 }
@@ -320,8 +303,16 @@ function addComment(){
   comments.push(text);
   localStorage.setItem("comments",JSON.stringify(comments));
   input.value="";
+  input.style.height="50px";
   render();
 }
+
+/* auto resize textarea */
+const input=document.getElementById("input");
+input.addEventListener("input",()=>{
+  input.style.height="auto";
+  input.style.height=Math.min(input.scrollHeight,140)+"px";
+});
 
 render();
 
