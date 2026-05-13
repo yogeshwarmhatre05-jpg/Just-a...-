@@ -29,8 +29,14 @@ body{
   box-shadow:0 20px 60px rgba(0,0,0,0.6);
 }
 
-.white{ background:#0ea5e9; }
-.black{ background:#075985; }
+/* BEAUTIFUL BLUE + WHITE COLORS */
+.white{
+  background:linear-gradient(145deg,#ffffff,#dbeafe);
+}
+
+.black{
+  background:linear-gradient(145deg,#38bdf8,#2563eb);
+}
 
 .square{
   display:flex;
@@ -125,50 +131,25 @@ const board = document.getElementById("board");
 /* REAL LEGAL MOVES */
 const moves = [
 
-/* 1. e4 d5 */
 [52,36],[11,27],
-
-/* 2. exd5 Qxd5 */
 [36,27],[3,27],
-
-/* 3. Nc3 Qa5 */
 [57,42],[27,24],
-
-/* 4. d4 Nf6 */
 [51,35],[6,21],
-
-/* 5. Nf3 c6 */
 [62,45],[10,18],
-
-/* 6. Bc4 Bf5 */
 [61,34],[2,29],
-
-/* 7. Bd2 e6 */
 [34,43],[12,20],
-
-/* 8. Qe2 Bb4 */
 [59,52],[29,38],
-
-/* 9. O-O-O Nbd7 */
 castleWhite(),
 [1,18],
-
-/* 10. Bb3 O-O */
 [43,34],
 castleBlack(),
-
-/* 11. h4 */
 [55,39],
-
-/* 12. a6 */
 [8,16],
-
-/* 13. Ne5 */
 [45,28]
 
 ];
 
-/* CASTLING SUPPORT */
+/* CASTLING */
 function castleWhite(){
   return ["castleWhite"];
 }
@@ -264,7 +245,6 @@ function play(){
 
     const move = moves[moveIndex];
 
-    /* WHITE CASTLE */
     if(move[0] === "castleWhite"){
 
       state[62] = state[60];
@@ -274,7 +254,6 @@ function play(){
       state[63] = "";
     }
 
-    /* BLACK CASTLE */
     else if(move[0] === "castleBlack"){
 
       state[6] = state[4];
