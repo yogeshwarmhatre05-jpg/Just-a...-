@@ -1,27 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Sicilian Najdorf Chess Animation</title>
 
 <style>
-
-:root{
-  --light:#dff4ff;
-  --dark:#3b82a6;
-  --border:#08131f;
-}
-
 body{
   margin:0;
   height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
-  background:#0b1220;
-  font-family:Arial,sans-serif;
+  background:#050b1a;
+  font-family:Arial;
 }
 
 .board{
@@ -30,57 +20,46 @@ body{
   display:grid;
   grid-template-columns:repeat(8,1fr);
   grid-template-rows:repeat(8,1fr);
-  border:10px solid var(--border);
-  box-shadow:0 20px 50px rgba(0,0,0,0.5);
+  border:10px solid #020617;
+  position:relative;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
 }
+
+/* darker ocean theme */
+.white{ background:#0ea5e9; }
+.black{ background:#075985; }
 
 /* squares */
 .square{
-  position:relative;
   display:flex;
   justify-content:center;
   align-items:center;
-  font-size:36px;
 }
 
-.white{
-  background:var(--light);
-}
-
-.black{
-  background:var(--dark);
+/* pieces */
+.piece{
+  width:85%;
+  height:85%;
+  object-fit:contain;
+  user-select:none;
+  transition:0.3s;
 }
 
 /* coordinates */
 .coord{
   position:absolute;
-  font-size:10px;
+  font-size:12px;
+  color:#cbd5e1;
   font-weight:bold;
-  opacity:0.8;
 }
 
 .file{
-  right:3px;
-  bottom:2px;
+  bottom:-18px;
 }
 
 .rank{
-  left:3px;
-  top:2px;
+  left:-18px;
 }
-
-.white .coord{
-  color:#25637f;
-}
-
-.black .coord{
-  color:#eaf9ff;
-}
-
-.piece{
-  filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-}
-
 </style>
 </head>
 
@@ -88,140 +67,121 @@ body{
 
 <div id="board" class="board"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-
 <script>
 
-/* SICILIAN DEFENSE — NAJDORF */
+/* ♟️ PIECE IMAGES */
+/* PUT YOUR LINKS HERE */
+const img = {
+  P:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
+  R:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
+  N:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png",
+  B:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png",
+  Q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png",
+  K:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png",
 
-const PGN = `
-1. e4 c5
-2. Nf3 d6
-3. d4 cxd4
-4. Nxd4 Nf6
-5. Nc3 a6
-6. Bg5 e6
-7. f4 Be7
-8. Qf3 Qc7
-9. O-O-O Nbd7
-10. g4 b5
-11. Bxf6 Nxf6
-12. g5 Nd7
-13. f5 Ne5
-14. Qg3 b4
-15. Nce2 Bb7
-16. Bg2 Rc8
-17. Kb1 O-O
-`;
-
-const pieces = {
-  p:"♟", r:"♜", n:"♞", b:"♝", q:"♛", k:"♚",
-  P:"♙", R:"♖", N:"♘", B:"♗", Q:"♕", K:"♔"
+  p:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png",
+  r:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png",
+  n:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png",
+  b:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png",
+  q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png",
+  k:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png"
 };
 
-const files = ["a","b","c","d","e","f","g","h"];
+/* START POSITION */
+let state = [
+  "r","n","b","q","k","b","n","r",
+  "p","p","p","p","p","p","p","p",
+  "","","","","","","","",
+  "","","","","","","","",
+  "","","","","","","","",
+  "","","","","","","","",
+  "P","P","P","P","P","P","P","P",
+  "R","N","B","Q","K","B","N","R"
+];
+
+/* ♟️ SICILIAN DEFENSE: NAJDORF */
+const moves = [
+  [52,36], // e4
+  [10,26], // c5
+  [62,45], // Nf3
+  [9,17],  // d6
+  [51,35], // d4
+  [26,35], // cxd4
+  [45,35], // Nxd4
+  [1,18],  // Nf6
+  [57,42], // Nc3
+  [8,16]   // a6 (Najdorf)
+];
 
 const board = document.getElementById("board");
 
-let game = new Chess();
-
-game.load_pgn(PGN);
-
-const moves = game.history();
-
-game.reset();
-
-let moveIndex = 0;
-
-/* DRAW BOARD */
-
-function drawBoard(){
-
+/* DRAW */
+function draw(){
   board.innerHTML = "";
 
-  const position = game.board();
+  state.forEach((p,i)=>{
+    const sq = document.createElement("div");
 
-  for(let r=0;r<8;r++){
+    const r = Math.floor(i/8);
+    const c = i%8;
 
-    for(let c=0;c<8;c++){
+    sq.className = "square " + ((r+c)%2 ? "black" : "white");
 
-      const square = document.createElement("div");
-
-      square.className =
-        "square " + ((r+c)%2 ? "black" : "white");
-
-      /* piece */
-      const pieceDiv = document.createElement("div");
-
-      pieceDiv.className = "piece";
-
-      const piece = position[r][c];
-
-      if(piece){
-
-        const code =
-          piece.color === "w"
-          ? piece.type.toUpperCase()
-          : piece.type;
-
-        pieceDiv.textContent = pieces[code];
-      }
-
-      square.appendChild(pieceDiv);
-
-      /* coordinates */
-
-      if(r === 7){
-
-        const file = document.createElement("div");
-
-        file.className = "coord file";
-
-        file.textContent = files[c];
-
-        square.appendChild(file);
-      }
-
-      if(c === 0){
-
-        const rank = document.createElement("div");
-
-        rank.className = "coord rank";
-
-        rank.textContent = 8-r;
-
-        square.appendChild(rank);
-      }
-
-      board.appendChild(square);
+    if(p){
+      const im = document.createElement("img");
+      im.className = "piece";
+      im.src = img[p];
+      sq.appendChild(im);
     }
+
+    board.appendChild(sq);
+  });
+
+  addCoords();
+}
+
+/* COORDINATES */
+function addCoords(){
+  const files = ["A","B","C","D","E","F","G","H"];
+
+  for(let i=0;i<8;i++){
+    let f = document.createElement("div");
+    f.className = "coord file";
+    f.style.left = (i*52 + 18) + "px";
+    f.textContent = files[i];
+    board.appendChild(f);
+  }
+
+  for(let i=0;i<8;i++){
+    let r = document.createElement("div");
+    r.className = "coord rank";
+    r.style.top = (i*52 + 18) + "px";
+    r.textContent = 8 - i;
+    board.appendChild(r);
   }
 }
 
 /* PLAY MOVES */
+let moveIndex = 0;
 
-function animateGame(){
-
+function play(){
   if(moveIndex >= moves.length) return;
 
   setTimeout(()=>{
+    const [from,to] = moves[moveIndex];
 
-    game.move(moves[moveIndex]);
+    state[to] = state[from];
+    state[from] = "";
 
     moveIndex++;
-
-    drawBoard();
-
-    animateGame();
-
-  },650);
+    draw();
+    play();
+  }, 700);
 }
 
 /* START */
-
-drawBoard();
-
-animateGame();
+draw();
+play();
 
 </script>
 
