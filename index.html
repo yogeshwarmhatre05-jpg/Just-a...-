@@ -10,7 +10,8 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  background:#0f172a;
+  background:#050b1a;
+  font-family:Arial;
 }
 
 .board{
@@ -19,22 +20,45 @@ body{
   display:grid;
   grid-template-columns:repeat(8,1fr);
   grid-template-rows:repeat(8,1fr);
-  border:10px solid #0f172a;
+  border:10px solid #020617;
+  position:relative;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
 }
 
+/* darker ocean theme */
+.white{ background:#0ea5e9; }
+.black{ background:#075985; }
+
+/* squares */
 .square{
   display:flex;
   justify-content:center;
   align-items:center;
-  font-size:34px;
-  user-select:none;
 }
 
-.white{ background:#e6f6ff; }
-.black{ background:#6ec1e4; }
-
+/* pieces */
 .piece{
-  font-size:34px;
+  width:85%;
+  height:85%;
+  object-fit:contain;
+  user-select:none;
+  transition:0.3s;
+}
+
+/* coordinates */
+.coord{
+  position:absolute;
+  font-size:12px;
+  color:#cbd5e1;
+  font-weight:bold;
+}
+
+.file{
+  bottom:-18px;
+}
+
+.rank{
+  left:-18px;
 }
 </style>
 </head>
@@ -44,14 +68,27 @@ body{
 <div id="board" class="board"></div>
 
 <script>
-/* ♟️ PIECES */
-const pieces = {
-  p:"♟", r:"♜", n:"♞", b:"♝", q:"♛", k:"♚",
-  P:"♙", R:"♖", N:"♘", B:"♗", Q:"♕", K:"♔"
+
+/* ♟️ PIECE IMAGES */
+/* PUT YOUR LINKS HERE */
+const img = {
+  P:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
+  R:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
+  N:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png",
+  B:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png",
+  Q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png",
+  K:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png",
+
+  p:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png",
+  r:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png",
+  n:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png",
+  b:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png",
+  q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png",
+  k:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png"
 };
 
-/* ♟️ START POSITION */
-let boardState = [
+/* START POSITION */
+let state = [
   "r","n","b","q","k","b","n","r",
   "p","p","p","p","p","p","p","p",
   "","","","","","","","",
@@ -62,73 +99,27 @@ let boardState = [
   "R","N","B","Q","K","B","N","R"
 ];
 
-/* ♟️ VIENNA GAMBIT MAIN VARIATION */
-const MOVES = [
-
-  // 1. e4
-  [52,36],
-
-  // ... e5
-  [12,28],
-
-  // 2. Nc3
-  [57,42],
-
-  // ... Nf6
-  [6,21],
-
-  // 3. f4
-  [53,37],
-
-  // ... d5
-  [11,27],
-
-  // 4. fxe5
-  [37,28],
-
-  // ... Nxe4
-  [21,36],
-
-  // 5. Nf3
-  [62,45],
-
-  // ... Be7
-  [5,12],
-
-  // 6. d4
-  [51,35],
-
-  // ... O-O
-  [4,6],
-  [7,5],
-
-  // 7. Bd3
-  [61,43],
-
-  // ... f5
-  [13,29],
-
-  // 8. exf6
-  [28,21],
-
-  // ... Bxf6
-  [12,21],
-
-  // 9. O-O
-  [60,62],
-  [63,61],
-
-  // ... Nc6
-  [1,18]
+/* ♟️ SICILIAN DEFENSE: NAJDORF */
+const moves = [
+  [52,36], // e4
+  [10,26], // c5
+  [62,45], // Nf3
+  [9,17],  // d6
+  [51,35], // d4
+  [26,35], // cxd4
+  [45,35], // Nxd4
+  [1,18],  // Nf6
+  [57,42], // Nc3
+  [8,16]   // a6 (Najdorf)
 ];
 
 const board = document.getElementById("board");
 
-/* DRAW BOARD */
+/* DRAW */
 function draw(){
   board.innerHTML = "";
 
-  boardState.forEach((p,i)=>{
+  state.forEach((p,i)=>{
     const sq = document.createElement("div");
 
     const r = Math.floor(i/8);
@@ -136,36 +127,62 @@ function draw(){
 
     sq.className = "square " + ((r+c)%2 ? "black" : "white");
 
-    sq.textContent = pieces[p] || "";
+    if(p){
+      const im = document.createElement("img");
+      im.className = "piece";
+      im.src = img[p];
+      sq.appendChild(im);
+    }
 
     board.appendChild(sq);
   });
+
+  addCoords();
+}
+
+/* COORDINATES */
+function addCoords(){
+  const files = ["A","B","C","D","E","F","G","H"];
+
+  for(let i=0;i<8;i++){
+    let f = document.createElement("div");
+    f.className = "coord file";
+    f.style.left = (i*52 + 18) + "px";
+    f.textContent = files[i];
+    board.appendChild(f);
+  }
+
+  for(let i=0;i<8;i++){
+    let r = document.createElement("div");
+    r.className = "coord rank";
+    r.style.top = (i*52 + 18) + "px";
+    r.textContent = 8 - i;
+    board.appendChild(r);
+  }
 }
 
 /* PLAY MOVES */
-let index = 0;
+let moveIndex = 0;
 
 function play(){
-  if(index >= MOVES.length) return;
+  if(moveIndex >= moves.length) return;
 
   setTimeout(()=>{
+    const [from,to] = moves[moveIndex];
 
-    const [from,to] = MOVES[index];
+    state[to] = state[from];
+    state[from] = "";
 
-    boardState[to] = boardState[from];
-    boardState[from] = "";
-
-    index++;
-
+    moveIndex++;
     draw();
     play();
-
-  }, 650);
+  }, 700);
 }
 
 /* START */
 draw();
 play();
+
 </script>
 
 </body>
