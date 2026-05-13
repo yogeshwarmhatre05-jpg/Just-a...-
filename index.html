@@ -25,18 +25,15 @@ body{
   box-shadow:0 20px 60px rgba(0,0,0,0.6);
 }
 
-/* darker ocean theme */
 .white{ background:#0ea5e9; }
 .black{ background:#075985; }
 
-/* squares */
 .square{
   display:flex;
   justify-content:center;
   align-items:center;
 }
 
-/* pieces */
 .piece{
   width:85%;
   height:85%;
@@ -60,16 +57,30 @@ body{
 .rank{
   left:-18px;
 }
+
+/* title */
+.title{
+  position:absolute;
+  top:-45px;
+  color:white;
+  font-size:15px;
+  font-weight:bold;
+  letter-spacing:1px;
+}
 </style>
 </head>
 
 <body>
 
-<div id="board" class="board"></div>
+<div class="board" id="board">
+  <div class="title">
+    Magnus Carlsen vs Veselin Topalov (2010)
+  </div>
+</div>
 
 <script>
 
-/* PIECE IMAGES */
+/* PIECES */
 const img = {
   P:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
   R:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
@@ -100,40 +111,62 @@ const startState = [
 
 let state = [...startState];
 
-/* ♟️ VIENNA GAME MAIN VARIATION
-1. e4 e5
-2. Nc3 Nf6
-3. f4 d5
-4. fxe5 Nxe4
-*/
-
+/* MAGNUS vs TOPALOV 2010 */
 const moves = [
-  [52,36], // e4
-  [12,28], // e5
 
-  [57,42], // Nc3
-  [6,21],  // Nf6
-
-  [53,37], // f4
-  [11,27], // d5
-
-  [37,28], // fxe5
-  [21,36]  // Nxe4
+[51,35],[11,27],
+[50,34],[12,20],
+[57,42],[6,21],
+[62,45],[5,12],
+[61,34],[4,6],
+[52,44],[10,26],
+[35,26],[12,26],
+[48,40],[1,18],
+[59,50],[3,31],
+[56,59],[12,4],
+[61,52],[27,34],
+[52,34],[20,36],
+[34,41],[36,28],
+[41,21],[12,21],
+[50,36],[21,42],
+[49,42],[31,42],
+[45,51],[18,28],
+[60,62],[28,42],
+[51,42],[12,20],
+[59,58],[42,21],
+[50,13],[7,5],
+[21,11],[5,1],
+[13,20],[31,21],
+[11,12],[1,3],
+[58,50],[3,27],
+[50,53],[15,23],
+[47,39],[0,1],
+[62,55],[1,17],
+[12,28],[3,59],
+[28,59],[31,40],
+[59,35],[17,9],
+[55,46],[9,17],
+[46,21],[14,21],
+[35,45],[17,9],
+[45,5]
 ];
 
 const board = document.getElementById("board");
 
-/* DRAW BOARD */
+/* DRAW */
 function draw(){
-  board.innerHTML = "";
+
+  board.querySelectorAll(".square,.coord").forEach(e=>e.remove());
 
   state.forEach((p,i)=>{
+
     const sq = document.createElement("div");
 
     const r = Math.floor(i/8);
     const c = i%8;
 
-    sq.className = "square " + ((r+c)%2 ? "black" : "white");
+    sq.className =
+      "square " + ((r+c)%2 ? "black" : "white");
 
     if(p){
       const im = document.createElement("img");
@@ -143,40 +176,50 @@ function draw(){
     }
 
     board.appendChild(sq);
+
   });
 
   addCoords();
 }
 
-/* COORDINATES */
+/* COORDS */
 function addCoords(){
+
   const files = ["A","B","C","D","E","F","G","H"];
 
   for(let i=0;i<8;i++){
+
     let f = document.createElement("div");
+
     f.className = "coord file";
     f.style.left = (i*52 + 18) + "px";
     f.textContent = files[i];
+
     board.appendChild(f);
   }
 
   for(let i=0;i<8;i++){
+
     let r = document.createElement("div");
+
     r.className = "coord rank";
     r.style.top = (i*52 + 18) + "px";
-    r.textContent = 8 - i;
+    r.textContent = 8-i;
+
     board.appendChild(r);
   }
 }
 
-/* PLAY MOVES LOOP */
-let moveIndex = 0;
-
+/* RESET */
 function resetBoard(){
+
   state = [...startState];
   draw();
   moveIndex = 0;
 }
+
+/* PLAY LOOP */
+let moveIndex = 0;
 
 function play(){
 
@@ -185,7 +228,7 @@ function play(){
     setTimeout(()=>{
       resetBoard();
       play();
-    },1500);
+    },2500);
 
     return;
   }
@@ -200,9 +243,10 @@ function play(){
     moveIndex++;
 
     draw();
+
     play();
 
-  },700);
+  },650);
 }
 
 /* START */
