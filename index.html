@@ -1,126 +1,330 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Royal Comment Box</title>
+<meta charset="UTF-8">
 
 <style>
-  body{
-    margin:0;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background: radial-gradient(circle at top, #8b0000, #3b0000);
-    font-family: Arial, sans-serif;
-  }
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  background: radial-gradient(circle at top, #8b0000, #1a0000);
+  font-family:Arial;
+  overflow:auto;
+  padding:20px;
+}
 
-  .container{
-    width: 420px;
-    background: rgba(0,0,0,0.35);
-    border: 2px solid #ffd700;
-    border-radius: 15px;
-    box-shadow: 0 0 25px rgba(255,215,0,0.4);
-    padding: 15px;
-    backdrop-filter: blur(6px);
-  }
+/* WRAPPER FOR PERFECT CENTER ALIGNMENT */
+.main{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:25px;
+}
 
-  h2{
-    text-align:center;
-    color:#ffd700;
-    margin-bottom:10px;
-    letter-spacing:1px;
-  }
+/* ================= CHESS ================= */
 
-  textarea{
-    width:100%;
-    height:80px;
-    border-radius:10px;
-    border:1px solid #ffd700;
-    padding:10px;
-    resize:none;
-    outline:none;
-    background:#1a0000;
-    color:#fff;
-  }
+.board-wrapper{
+  position:relative;
+}
 
-  button{
-    width:100%;
-    margin-top:10px;
-    padding:10px;
-    border:none;
-    border-radius:10px;
-    background:#ffd700;
-    color:#3b0000;
-    font-weight:bold;
-    cursor:pointer;
-    transition:0.3s;
-  }
+.board{
+  width:420px;
+  height:420px;
+  display:grid;
+  grid-template-columns:repeat(8,1fr);
+  grid-template-rows:repeat(8,1fr);
+  border:8px solid #ffd700;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+  border-radius:10px;
+}
 
-  button:hover{
-    background:#ffcc00;
-  }
+/* soft chess colors */
+.white{
+  background:linear-gradient(145deg,#e8eef5,#cfd8e3);
+}
 
-  .comments{
-    margin-top:15px;
-    max-height:200px;
-    overflow-y:auto;
-    border-top:1px solid #ffd700;
-    padding-top:10px;
-  }
+.black{
+  background:linear-gradient(145deg,#4b6584,#2f4858);
+}
 
-  .comment{
-    background: rgba(255,255,255,0.08);
-    padding:8px;
-    border-radius:8px;
-    margin-bottom:8px;
-    color:#fff;
-    font-size:14px;
-    border-left:3px solid #ffd700;
-  }
+.square{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.piece{
+  width:85%;
+  height:85%;
+  user-select:none;
+  pointer-events:none;
+}
+
+.coord{
+  position:absolute;
+  font-size:12px;
+  color:#ffd700;
+  font-weight:bold;
+}
+
+.file{ bottom:-22px; }
+.rank{ left:-20px; }
+
+.title{
+  position:absolute;
+  top:-45px;
+  left:0;
+  color:#ffd700;
+  font-size:14px;
+  font-weight:bold;
+}
+
+/* ================= COMMENT BOX ================= */
+
+.container{
+  width:420px;
+  background: rgba(0,0,0,0.35);
+  border: 2px solid #ffd700;
+  border-radius: 15px;
+  box-shadow: 0 0 25px rgba(255,215,0,0.3);
+  padding: 15px;
+  backdrop-filter: blur(6px);
+}
+
+h2{
+  text-align:center;
+  color:#ffd700;
+  margin:5px 0 10px;
+}
+
+textarea{
+  width:100%;
+  height:80px;
+  border-radius:10px;
+  border:1px solid #ffd700;
+  padding:10px;
+  resize:none;
+  outline:none;
+  background:#1a0000;
+  color:#fff;
+}
+
+button{
+  width:100%;
+  margin-top:10px;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#ffd700;
+  color:#3b0000;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.comments{
+  margin-top:12px;
+  max-height:180px;
+  overflow-y:auto;
+  border-top:1px solid #ffd700;
+  padding-top:10px;
+}
+
+.comment{
+  background: rgba(255,255,255,0.08);
+  padding:8px;
+  border-radius:8px;
+  margin-bottom:8px;
+  color:#fff;
+  font-size:14px;
+  border-left:3px solid #ffd700;
+}
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <h2>Royal Message Box</h2>
+<div class="main">
 
-  <textarea id="input" placeholder="Write your message..."></textarea>
-  <button onclick="addComment()">Post Message</button>
+  <!-- ================= CHESS ================= -->
+  <div class="board-wrapper">
 
-  <div class="comments" id="comments"></div>
+    <div class="title">
+      Magnus Carlsen vs Veselin Topalov (2010)
+    </div>
+
+    <div class="board" id="board"></div>
+
+  </div>
+
+  <!-- ================= COMMENT BOX ================= -->
+  <div class="container">
+    <h2>Royal Message Box</h2>
+
+    <textarea id="input" placeholder="Write your message..."></textarea>
+    <button onclick="addComment()">Post Message</button>
+
+    <div class="comments" id="comments"></div>
+  </div>
+
 </div>
 
 <script>
-  let comments = JSON.parse(localStorage.getItem("comments")) || [];
 
-  function render(){
-    const box = document.getElementById("comments");
-    box.innerHTML = "";
-    comments.forEach(c => {
-      const div = document.createElement("div");
-      div.className = "comment";
-      div.textContent = c;
-      box.appendChild(div);
-    });
+/* ================= CHESS ================= */
+
+const img = {
+  P:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
+  R:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
+  N:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png",
+  B:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png",
+  Q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png",
+  K:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png",
+  p:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png",
+  r:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png",
+  n:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png",
+  b:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png",
+  q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png",
+  k:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png"
+};
+
+const startState = [
+"r","n","b","q","k","b","n","r",
+"p","p","p","p","p","p","p","p",
+"","","","","","","","",
+"","","","","","","","",
+"","","","","","","","",
+"","","","","","","","",
+"P","P","P","P","P","P","P","P",
+"R","N","B","Q","K","B","N","R"
+];
+
+let state = [...startState];
+const board = document.getElementById("board");
+
+const moves = [
+[52,36],[11,27],[36,27],[3,27],
+[57,42],[27,24],[51,35],[6,21],
+[62,45],[10,18],[61,34],[2,29],
+[34,43],[12,20],[59,52],[29,38],
+castleWhite(),[1,18],[43,34],
+castleBlack(),[55,39],[8,16],[45,28]
+];
+
+function castleWhite(){ return ["castleWhite"]; }
+function castleBlack(){ return ["castleBlack"]; }
+
+function draw(){
+  board.innerHTML="";
+  state.forEach((p,i)=>{
+    const sq=document.createElement("div");
+    const r=Math.floor(i/8),c=i%8;
+    sq.className="square "+((r+c)%2?"black":"white");
+
+    if(p){
+      const im=document.createElement("img");
+      im.className="piece";
+      im.src=img[p];
+      sq.appendChild(im);
+    }
+    board.appendChild(sq);
+  });
+}
+
+function addCoords(){
+  const wrapper=document.querySelector(".board-wrapper");
+  const files=["A","B","C","D","E","F","G","H"];
+
+  for(let i=0;i<8;i++){
+    let f=document.createElement("div");
+    f.className="coord file";
+    f.style.left=(i*52+30)+"px";
+    f.textContent=files[i];
+    wrapper.appendChild(f);
   }
 
-  function addComment(){
-    const input = document.getElementById("input");
-    const text = input.value.trim();
+  for(let i=0;i<8;i++){
+    let r=document.createElement("div");
+    r.className="coord rank";
+    r.style.top=(i*52+30)+"px";
+    r.textContent=8-i;
+    wrapper.appendChild(r);
+  }
+}
 
-    if(text === "") return;
+addCoords();
 
-    comments.push(text);
-    localStorage.setItem("comments", JSON.stringify(comments));
+let moveIndex=0;
 
-    input.value = "";
-    render();
+function resetBoard(){
+  state=[...startState];
+  moveIndex=0;
+  draw();
+}
+
+function play(){
+  if(moveIndex>=moves.length){
+    setTimeout(()=>{resetBoard();play();},2500);
+    return;
   }
 
+  setTimeout(()=>{
+    const move=moves[moveIndex];
+
+    if(move[0]==="castleWhite"){
+      state[62]=state[60]; state[60]="";
+      state[61]=state[63]; state[63]="";
+    }
+    else if(move[0]==="castleBlack"){
+      state[6]=state[4]; state[4]="";
+      state[5]=state[7]; state[7]="";
+    }
+    else{
+      const [from,to]=move;
+      state[to]=state[from];
+      state[from]="";
+    }
+
+    draw();
+    moveIndex++;
+    play();
+  },700);
+}
+
+draw();
+play();
+
+/* ================= COMMENTS ================= */
+
+let comments = JSON.parse(localStorage.getItem("comments")) || [];
+
+function render(){
+  const box=document.getElementById("comments");
+  box.innerHTML="";
+  comments.forEach(c=>{
+    const div=document.createElement("div");
+    div.className="comment";
+    div.textContent=c;
+    box.appendChild(div);
+  });
+}
+
+function addComment(){
+  const input=document.getElementById("input");
+  const text=input.value.trim();
+  if(!text) return;
+
+  comments.push(text);
+  localStorage.setItem("comments",JSON.stringify(comments));
+  input.value="";
   render();
+}
+
+render();
+
 </script>
 
 </body>
