@@ -1,253 +1,246 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 
 <style>
-  body{
-    background:#0F172A;
-    margin:0;
-    border:2px solid #1E293B;
-    min-height:100vh;
-    box-sizing:border-box;
-    border-radius:2px;
-    color:#E2E8F0;
-    transition:background 1s ease,border-color 1s ease;
-  }
+:root{
+  --light:#dff4ff;
+  --dark:#3b82a6;
+  --border:#08131f;
+}
 
-  .mainBox{
-    max-width:300px;
-    margin:auto;
-    padding:14px;
-    border-radius:2px;
-    background:#0F172A;
-    text-align:center;
-    color:#E2E8F0;
-    border:2px solid #1E293B;
-    transition:background 1s ease,border-color 1s ease,box-shadow 1s ease;
-  }
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#0b1220;
+  overflow:hidden;
+  font-family:Arial,sans-serif;
+}
 
-  .themeText{
-    transition:color 1s ease,text-shadow 1s ease;
-  }
+.board-wrapper{
+  position:relative;
+}
 
-  .line{
-    height:1px;
-    background:rgba(226,232,240,0.2);
-    margin:8px 20px;
-  }
+.board{
+  width:420px;
+  height:420px;
+  display:grid;
+  grid-template-columns:repeat(8,1fr);
+  grid-template-rows:repeat(8,1fr);
+  border:10px solid var(--border);
+  box-shadow:0 20px 50px rgba(0,0,0,0.55);
+  position:relative;
+}
 
-  @keyframes discoRGB{
-    0%{background-position:0% 50%;}
-    50%{background-position:100% 50%;}
-    100%{background-position:0% 50%;}
-  }
+/* squares */
+.square{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:34px;
+  transition:all 0.25s ease;
+  position:relative;
+}
+
+.white{ background:var(--light); }
+.black{ background:var(--dark); }
+
+/* pieces */
+.piece{
+  font-size:36px;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  transition:transform 0.25s ease;
+}
+
+/* coordinates */
+.coord{
+  position:absolute;
+  font-size:10px;
+  font-weight:bold;
+  opacity:0.8;
+  pointer-events:none;
+}
+
+.file{
+  right:4px;
+  bottom:2px;
+}
+
+.rank{
+  left:4px;
+  top:2px;
+}
+
+.white .coord{
+  color:#25637f;
+}
+
+.black .coord{
+  color:#dff4ff;
+}
 </style>
 </head>
 
 <body>
 
-<div class="mainBox" id="mainBox">
-
-  <p style="margin:0;">
-    <iframe width="270" height="60"
-      style="border:0;display:block;margin:0;padding:0;border-radius:2px;"
-      src="https://yogeshwarmhatre05-jpg.github.io/Pixel-g/">
-    </iframe>
-  </p>
-
-  <div class="themeText" id="welcomeText"
-    style="font-size:15px;letter-spacing:2px;color:#22C55E;overflow:hidden;">
-    <marquee behavior="scroll" direction="left" scrollamount="3">
-      ♣Welcome to Our Club♣
-    </marquee>
-  </div>
-
-  <br>
-
-  <div style="font-size:11px;letter-spacing:3px;">
-    <span class="themeText" id="ownerText"
-      style="font-size:14px;color:#22C55E;">
-      ✧ 𝐎 𝐖 𝐍 𝐄 𝐑 ✧
-    </span>
-  </div>
-
-  <div style="font-size:22px;font-weight:900;margin-top:6px;">
-    <img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/yogi136/php8h3mmr9lb0qd8ZyClyS.png"
-      style="display:block;margin:0 auto;border-radius:2px;"
-      width="100"
-      height="100">
-  </div>
-
-  <div id="yogiText"
-    class="themeText"
-    style="
-      font-size:22px;
-      font-weight:900;
-      margin-top:6px;
-      font-family:cursive;
-      color:#22C55E;
-    ">
-    √𝓎𝓸𝓰𝓲136
-  </div>
-
-  <div class="line"></div>
-
-  <div style="font-size:12px;font-style:italic;">
-    “Think like a King. Play like a Master.”
-  </div>
-
-  <br>
-
-  <!-- PLAYER -->
-  <div style="display:flex;justify-content:center;">
-    <iframe
-      id="musicPlayer"
-      width="280"
-      height="215"
-      style="border:none;border-radius:2px;"
-      src="https://yogeshwarmhatre05-jpg.github.io/Player/">
-    </iframe>
-  </div>
-
-  <br>
-
-  <iframe
-    src="https://yogeshwarmhatre05-jpg.github.io/Flappy-game/"
-    width="250"
-    height="250"
-    style="border:none;border-radius:2px;"
-    scrolling="no">
-  </iframe>
+<div class="board-wrapper">
+  <div id="board" class="board"></div>
 </div>
 
-<br>
-
-<div style="display:flex;justify-content:center;">
-  <iframe width="255" height="255"
-    style="border:none;border-radius:2px;"
-    src="https://yogeshwarmhatre05-jpg.github.io/Calend-orig/">
-  </iframe>
-</div>
-
-<br>
-
-<div style="
-  display:flex;
-  justify-content:center;
-  padding:10px;
-  background:#0F172A;
-">
-  <iframe
-    src="https://yogeshwarmhatre05-jpg.github.io/Official-last-part/"
-    width="300"
-    height="200"
-    style="
-      border:2px solid #1E293B;
-      border-radius:12px;
-      overflow:hidden;
-      background:#0F172A;
-    ">
-  </iframe>
-</div>
-
-<br>
-
-<div style="text-align:center;margin-bottom:20px;">
-
-  <div style="
-    font-size:22px;
-    font-weight:900;
-    margin-top:6px;
-    font-family:cursive;
-    background:linear-gradient(90deg,#ff4d4d,#ffcc00,#22c55e,#3b82f6,#a855f7);
-    background-size:300% 300%;
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-    animation:discoRGB 6s ease-in-out infinite;
-    display:inline-block;
-  ">
-    Made by yogi136
-  </div>
-
-</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.13.4/chess.min.js"></script>
 
 <script>
-/*
-  FAKE MUSIC REACTIVE THEME
-  Changes colors automatically like song moods
-*/
+/* =========================================
+   SICILIAN DEFENSE — NAJDORF VARIATION
+   ========================================= */
 
-const themes = [
-  {
-    bg:"#0F172A",
-    border:"#22C55E",
-    glow:"rgba(34,197,94,0.5)",
-    text:"#22C55E"
-  },
+const PGN = `
+1. e4 c5
+2. Nf3 d6
+3. d4 cxd4
+4. Nxd4 Nf6
+5. Nc3 a6
+6. Bg5 e6
+7. f4 Be7
+8. Qf3 Qc7
+9. O-O-O Nbd7
+10. g4 b5
+11. Bxf6 Nxf6
+12. g5 Nd7
+13. f5 Ne5
+14. Qg3 b4
+15. Nce2 Bb7
+16. Bg2 Rc8
+17. Kb1 O-O
+`;
 
-  {
-    bg:"#1E1B4B",
-    border:"#A855F7",
-    glow:"rgba(168,85,247,0.5)",
-    text:"#A855F7"
-  },
+const pieces = {
+  p:"♟", r:"♜", n:"♞", b:"♝", q:"♛", k:"♚",
+  P:"♙", R:"♖", N:"♘", B:"♗", Q:"♕", K:"♔"
+};
 
-  {
-    bg:"#111827",
-    border:"#3B82F6",
-    glow:"rgba(59,130,246,0.5)",
-    text:"#3B82F6"
-  },
+const files = ["a","b","c","d","e","f","g","h"];
 
-  {
-    bg:"#2A0F0F",
-    border:"#FF4D4D",
-    glow:"rgba(255,77,77,0.5)",
-    text:"#FF4D4D"
-  },
+const boardEl = document.getElementById("board");
 
-  {
-    bg:"#1A1A00",
-    border:"#FFCC00",
-    glow:"rgba(255,204,0,0.5)",
-    text:"#FFCC00"
-  }
-];
-
+let game = new Chess();
+let moves = [];
 let index = 0;
 
-function changeTheme(){
+/* DRAW BOARD */
+function draw(){
 
-  const theme = themes[index];
+  const fen = game.fen().split(" ")[0];
+  boardEl.innerHTML = "";
 
-  document.body.style.background = theme.bg;
-  document.body.style.borderColor = theme.border;
+  let r = 0;
 
-  const box = document.getElementById("mainBox");
-  box.style.background = theme.bg;
-  box.style.borderColor = theme.border;
-  box.style.boxShadow = `0 0 25px ${theme.glow}`;
+  for(let row of fen.split("/")){
 
-  document.querySelectorAll(".themeText").forEach(el=>{
-    el.style.color = theme.text;
-    el.style.textShadow = `0 0 12px ${theme.glow}`;
-  });
+    let c = 0;
 
-  index++;
-  if(index >= themes.length){
-    index = 0;
+    for(let ch of row){
+
+      if(!isNaN(ch)){
+
+        for(let i=0;i<+ch;i++){
+          createSquare("", r, c++);
+        }
+
+      } else {
+
+        createSquare(ch, r, c++);
+
+      }
+    }
+
+    r++;
   }
 }
 
-/*
-  Change every 6 seconds
-  Feels synced with music
-*/
+/* CREATE SQUARE */
+function createSquare(piece,r,c){
 
-setInterval(changeTheme, 6000);
+  let sq = document.createElement("div");
 
-changeTheme();
+  sq.className =
+    "square " + ((r+c)%2 ? "black" : "white");
+
+  /* piece */
+  let p = document.createElement("div");
+  p.className = "piece";
+  p.textContent = pieces[piece] || "";
+
+  sq.appendChild(p);
+
+  /* coordinates */
+
+  // files on bottom row
+  if(r === 7){
+
+    let file = document.createElement("div");
+    file.className = "coord file";
+    file.textContent = files[c];
+
+    sq.appendChild(file);
+  }
+
+  // ranks on left column
+  if(c === 0){
+
+    let rank = document.createElement("div");
+    rank.className = "coord rank";
+    rank.textContent = 8 - r;
+
+    sq.appendChild(rank);
+  }
+
+  boardEl.appendChild(sq);
+}
+
+/* PLAY MOVES */
+function play(){
+
+  if(index < moves.length){
+
+    setTimeout(()=>{
+
+      game.move(moves[index]);
+
+      index++;
+
+      draw();
+
+      play();
+
+    },650);
+
+  }
+}
+
+/* START */
+function start(){
+
+  game = new Chess();
+
+  game.load_pgn(PGN);
+
+  moves = game.history();
+
+  index = 0;
+
+  game.reset();
+
+  draw();
+
+  play();
+}
+
+start();
 </script>
 
 </body>
