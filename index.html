@@ -10,17 +10,17 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  background: radial-gradient(circle at top, #0b0f1a, #000000);
+  background:#050b1a;
   font-family:Arial;
 }
 
-/* MAIN WRAPPER (FIXED CENTER ALIGNMENT) */
+/* MAIN CENTER */
 .main{
-  width:300px;
+  width:420px;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:28px; /* proper spacing between chess & message */
+  gap:25px;
 }
 
 /* ================= CHESS ================= */
@@ -30,25 +30,21 @@ body{
 }
 
 .board{
-  width:300px;
-  height:300px;
+  width:420px;
+  height:420px;
   display:grid;
   grid-template-columns:repeat(8,1fr);
   grid-template-rows:repeat(8,1fr);
-  border:3px solid #ffd700;
-  border-radius:12px;
-  box-shadow:
-    0 0 15px rgba(255,215,0,0.25),
-    0 0 30px rgba(0,180,255,0.15);
-  overflow:hidden;
+  border:10px solid #020617;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
 }
 
 .white{
-  background: linear-gradient(145deg,#e6f0ff,#cfd9e6);
+  background:linear-gradient(145deg,#e8eef5,#cfd8e3);
 }
 
 .black{
-  background: linear-gradient(145deg,#1b2a3a,#0f1722);
+  background:linear-gradient(145deg,#4b6584,#2f4858);
 }
 
 .square{
@@ -60,46 +56,39 @@ body{
 .piece{
   width:85%;
   height:85%;
-  user-select:none;
+  object-fit:contain;
   pointer-events:none;
 }
 
 /* coords */
 .coord{
   position:absolute;
-  font-size:10px;
-  color:#ffd700;
+  font-size:12px;
+  color:#cbd5e1;
   font-weight:bold;
-  opacity:0.9;
 }
 
-.file{ bottom:-18px; }
-.rank{ left:-16px; }
+.file{ bottom:-22px; }
+.rank{ left:-20px; }
 
 .title{
   position:absolute;
-  top:-32px;
+  top:-45px;
   left:0;
-  color:#00d4ff;
-  font-size:12px;
+  color:white;
+  font-size:15px;
   font-weight:bold;
-  text-shadow:0 0 8px rgba(0,212,255,0.6);
 }
 
 /* ================= MESSAGE BOX ================= */
 
 .container{
-  width:300px;
+  width:420px;
   background: rgba(255,255,255,0.06);
-  border:2px solid rgba(255,215,0,0.8);
+  border:2px solid #ffd700;
   border-radius:14px;
-  padding:10px;
-  backdrop-filter: blur(10px);
-  box-shadow:
-    0 0 18px rgba(255,215,0,0.2),
-    inset 0 0 10px rgba(0,0,0,0.4);
-
-  /* IMPORTANT FIX: prevents right shift */
+  padding:12px;
+  box-shadow:0 0 20px rgba(255,215,0,0.15);
   box-sizing:border-box;
 }
 
@@ -107,22 +96,20 @@ h2{
   text-align:center;
   color:#ffd700;
   margin:5px 0 10px;
-  font-size:15px;
 }
 
 /* INPUT */
 textarea{
   width:100%;
-  min-height:50px;
+  min-height:60px;
   max-height:120px;
   border-radius:8px;
-  border:1px solid rgba(255,215,0,0.6);
+  border:1px solid #ffd700;
   padding:8px;
   resize:none;
   outline:none;
   background:#0b0f1a;
   color:#fff;
-  overflow:hidden;
   box-sizing:border-box;
 }
 
@@ -133,8 +120,7 @@ button{
   padding:8px;
   border:none;
   border-radius:8px;
-  background: linear-gradient(90deg,#ffd700,#ffb700);
-  color:#1a0000;
+  background:#ffd700;
   font-weight:bold;
   cursor:pointer;
 }
@@ -142,38 +128,40 @@ button{
 /* COMMENTS AREA */
 .comments{
   margin-top:10px;
-  max-height:180px;
+  max-height:200px;
   overflow-y:auto;
   border-top:1px solid rgba(255,215,0,0.4);
   padding-top:8px;
 }
 
-/* MESSAGE CARD */
+/* MESSAGE ROW (FIXED LAYOUT) */
 .comment{
-  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
   background: rgba(255,255,255,0.06);
-  padding:8px 34px 8px 8px; /* IMPORTANT SPACE FOR DELETE */
+  padding:8px;
   border-radius:8px;
   margin-bottom:8px;
   color:#fff;
   font-size:13px;
-  word-break:break-word;
-  border-left:3px solid #ffd700;
-  box-sizing:border-box;
+  gap:10px;
 }
 
-/* 🚫 DELETE BUTTON (FAR RIGHT FIXED) */
+/* TEXT AREA INSIDE MESSAGE */
+.msgText{
+  flex:1;
+  word-break:break-word;
+}
+
+/* 🚫 BUTTON RIGHT EDGE */
 .delete{
-  position:absolute;
-  right:6px;
-  top:50%;
-  transform:translateY(-50%);
+  flex-shrink:0;
   background:none;
   border:none;
   color:#ffd700;
-  cursor:pointer;
   font-size:16px;
-  padding:0;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -184,16 +172,16 @@ button{
 
   <!-- CHESS -->
   <div class="board-wrapper">
-    <div class="title">Royal Neon Chess</div>
+    <div class="title">Magnus Carlsen vs Topalov</div>
     <div class="board" id="board"></div>
   </div>
 
-  <!-- MESSAGE BOX -->
+  <!-- MESSAGE -->
   <div class="container">
     <h2>Royal Message Box</h2>
 
-    <textarea id="input" placeholder="Write your message..."></textarea>
-    <button onclick="addComment()">Post Message</button>
+    <textarea id="input" placeholder="Write message..."></textarea>
+    <button onclick="addComment()">Post</button>
 
     <div class="comments" id="comments"></div>
   </div>
@@ -202,20 +190,21 @@ button{
 
 <script>
 
-/* CHESS */
+/* ================= CHESS (UNCHANGED WORKING ENGINE) ================= */
+
 const img = {
-  P:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
-  R:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
-  N:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png",
-  B:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png",
-  Q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png",
-  K:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png",
-  p:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png",
-  r:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png",
-  n:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png",
-  b:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png",
-  q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png",
-  k:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png"
+P:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
+R:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
+N:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png",
+B:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png",
+Q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png",
+K:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png",
+p:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png",
+r:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png",
+n:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png",
+b:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png",
+q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png",
+k:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png"
 };
 
 const startState=[
@@ -233,62 +222,64 @@ let state=[...startState];
 const board=document.getElementById("board");
 
 function draw(){
-  board.innerHTML="";
-  state.forEach((p,i)=>{
-    const sq=document.createElement("div");
-    const r=Math.floor(i/8),c=i%8;
-    sq.className="square "+((r+c)%2?"black":"white");
+board.innerHTML="";
+state.forEach((p,i)=>{
+const sq=document.createElement("div");
+const r=Math.floor(i/8),c=i%8;
+sq.className="square "+((r+c)%2?"black":"white");
 
-    if(p){
-      const im=document.createElement("img");
-      im.className="piece";
-      im.src=img[p];
-      sq.appendChild(im);
-    }
-    board.appendChild(sq);
-  });
+if(p){
+const im=document.createElement("img");
+im.className="piece";
+im.src=img[p];
+sq.appendChild(im);
+}
+board.appendChild(sq);
+});
 }
 draw();
 
-/* COMMENTS */
+/* ================= COMMENTS (FIXED ROW LAYOUT) ================= */
+
 let comments = JSON.parse(localStorage.getItem("comments")) || [];
 
 function render(){
-  const box=document.getElementById("comments");
-  box.innerHTML="";
+const box=document.getElementById("comments");
+box.innerHTML="";
 
-  comments.forEach((c,i)=>{
-    const div=document.createElement("div");
-    div.className="comment";
+comments.forEach((c,i)=>{
+const div=document.createElement("div");
+div.className="comment";
 
-    const text=document.createElement("div");
-    text.textContent=c;
+const text=document.createElement("div");
+text.className="msgText";
+text.textContent=c;
 
-    const del=document.createElement("button");
-    del.className="delete";
-    del.innerHTML="🚫";
+const del=document.createElement("button");
+del.className="delete";
+del.innerHTML="🚫";
 
-    del.onclick=()=>{
-      comments.splice(i,1);
-      localStorage.setItem("comments",JSON.stringify(comments));
-      render();
-    };
+del.onclick=()=>{
+comments.splice(i,1);
+localStorage.setItem("comments",JSON.stringify(comments));
+render();
+};
 
-    div.appendChild(text);
-    div.appendChild(del);
-    box.appendChild(div);
-  });
+div.appendChild(text);
+div.appendChild(del);
+box.appendChild(div);
+});
 }
 
 function addComment(){
-  const input=document.getElementById("input");
-  const text=input.value.trim();
-  if(!text) return;
+const input=document.getElementById("input");
+const text=input.value.trim();
+if(!text) return;
 
-  comments.push(text);
-  localStorage.setItem("comments",JSON.stringify(comments));
-  input.value="";
-  render();
+comments.push(text);
+localStorage.setItem("comments",JSON.stringify(comments));
+input.value="";
+render();
 }
 
 render();
