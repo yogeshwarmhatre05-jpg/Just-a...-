@@ -10,22 +10,24 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  background: radial-gradient(circle at top, #8b0000, #1a0000);
+  background: radial-gradient(circle at top, #0b0f1a, #000000);
   font-family:Arial;
 }
 
-/* MAIN */
+/* MAIN WRAPPER (FIXED CENTER ALIGNMENT) */
 .main{
   width:300px;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:16px;
+  gap:28px; /* proper spacing between chess & message */
 }
 
 /* ================= CHESS ================= */
 
-.board-wrapper{ position:relative; }
+.board-wrapper{
+  position:relative;
+}
 
 .board{
   width:300px;
@@ -33,13 +35,21 @@ body{
   display:grid;
   grid-template-columns:repeat(8,1fr);
   grid-template-rows:repeat(8,1fr);
-  border:6px solid #ffd700;
-  border-radius:10px;
-  box-shadow:0 15px 40px rgba(0,0,0,0.6);
+  border:3px solid #ffd700;
+  border-radius:12px;
+  box-shadow:
+    0 0 15px rgba(255,215,0,0.25),
+    0 0 30px rgba(0,180,255,0.15);
+  overflow:hidden;
 }
 
-.white{ background:linear-gradient(145deg,#e8eef5,#cfd8e3); }
-.black{ background:linear-gradient(145deg,#4b6584,#2f4858); }
+.white{
+  background: linear-gradient(145deg,#e6f0ff,#cfd9e6);
+}
+
+.black{
+  background: linear-gradient(145deg,#1b2a3a,#0f1722);
+}
 
 .square{
   display:flex;
@@ -50,6 +60,7 @@ body{
 .piece{
   width:85%;
   height:85%;
+  user-select:none;
   pointer-events:none;
 }
 
@@ -59,6 +70,7 @@ body{
   font-size:10px;
   color:#ffd700;
   font-weight:bold;
+  opacity:0.9;
 }
 
 .file{ bottom:-18px; }
@@ -66,120 +78,103 @@ body{
 
 .title{
   position:absolute;
-  top:-35px;
+  top:-32px;
   left:0;
-  color:#ffd700;
+  color:#00d4ff;
   font-size:12px;
   font-weight:bold;
-}
-
-/* ================= PGN INPUT ================= */
-
-.pgnBox{
-  width:300px;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-
-.pgnInput{
-  width:100%;
-  height:60px;
-  resize:none;
-  border-radius:8px;
-  border:1px solid #ffd700;
-  background:#1a0000;
-  color:#fff;
-  padding:6px;
-  outline:none;
-}
-
-.pgnBtn{
-  padding:6px;
-  border:none;
-  border-radius:8px;
-  background:#ffd700;
-  font-weight:bold;
-  cursor:pointer;
+  text-shadow:0 0 8px rgba(0,212,255,0.6);
 }
 
 /* ================= MESSAGE BOX ================= */
 
 .container{
   width:300px;
-  height:220px;        /* FIXED FRAME */
-  display:flex;
-  flex-direction:column;
-  background: rgba(0,0,0,0.35);
-  border:2px solid #ffd700;
-  border-radius:12px;
+  background: rgba(255,255,255,0.06);
+  border:2px solid rgba(255,215,0,0.8);
+  border-radius:14px;
   padding:10px;
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 0 18px rgba(255,215,0,0.2),
+    inset 0 0 10px rgba(0,0,0,0.4);
+
+  /* IMPORTANT FIX: prevents right shift */
+  box-sizing:border-box;
 }
 
 h2{
   text-align:center;
   color:#ffd700;
-  margin:4px 0;
+  margin:5px 0 10px;
   font-size:15px;
 }
 
+/* INPUT */
 textarea{
   width:100%;
   min-height:50px;
-  max-height:90px;
+  max-height:120px;
   border-radius:8px;
-  border:1px solid #ffd700;
-  padding:6px;
+  border:1px solid rgba(255,215,0,0.6);
+  padding:8px;
   resize:none;
   outline:none;
-  background:#1a0000;
+  background:#0b0f1a;
   color:#fff;
+  overflow:hidden;
+  box-sizing:border-box;
 }
 
+/* BUTTON */
 button{
   width:100%;
-  margin-top:6px;
-  padding:6px;
+  margin-top:8px;
+  padding:8px;
   border:none;
   border-radius:8px;
-  background:#ffd700;
+  background: linear-gradient(90deg,#ffd700,#ffb700);
+  color:#1a0000;
   font-weight:bold;
   cursor:pointer;
 }
 
-/* COMMENTS FIXED AREA */
+/* COMMENTS AREA */
 .comments{
-  margin-top:8px;
-  flex:1;
+  margin-top:10px;
+  max-height:180px;
   overflow-y:auto;
-  border-top:1px solid #ffd700;
-  padding-top:6px;
+  border-top:1px solid rgba(255,215,0,0.4);
+  padding-top:8px;
 }
 
-/* MESSAGE */
+/* MESSAGE CARD */
 .comment{
   position:relative;
-  background:rgba(255,255,255,0.08);
-  padding:8px 30px 8px 8px;
+  background: rgba(255,255,255,0.06);
+  padding:8px 34px 8px 8px; /* IMPORTANT SPACE FOR DELETE */
   border-radius:8px;
-  margin-bottom:6px;
+  margin-bottom:8px;
   color:#fff;
   font-size:13px;
-  word-wrap:break-word;
+  word-break:break-word;
+  border-left:3px solid #ffd700;
+  box-sizing:border-box;
 }
 
-/* 🚫 DELETE ICON (RIGHT CORNER CLEAN) */
+/* 🚫 DELETE BUTTON (FAR RIGHT FIXED) */
 .delete{
   position:absolute;
   right:6px;
-  top:6px;
+  top:50%;
+  transform:translateY(-50%);
+  background:none;
   border:none;
-  background:transparent;
   color:#ffd700;
-  font-size:16px;
   cursor:pointer;
+  font-size:16px;
+  padding:0;
 }
-
 </style>
 </head>
 
@@ -189,22 +184,16 @@ button{
 
   <!-- CHESS -->
   <div class="board-wrapper">
-    <div class="title">Chess Board</div>
+    <div class="title">Royal Neon Chess</div>
     <div class="board" id="board"></div>
-  </div>
-
-  <!-- PGN INPUT -->
-  <div class="pgnBox">
-    <textarea id="pgn" placeholder="Paste PGN moves here..."></textarea>
-    <button class="pgnBtn" onclick="loadPGN()">Load PGN</button>
   </div>
 
   <!-- MESSAGE BOX -->
   <div class="container">
-    <h2>Message Box</h2>
+    <h2>Royal Message Box</h2>
 
-    <textarea id="input" placeholder="Write message..."></textarea>
-    <button onclick="addComment()">Post</button>
+    <textarea id="input" placeholder="Write your message..."></textarea>
+    <button onclick="addComment()">Post Message</button>
 
     <div class="comments" id="comments"></div>
   </div>
@@ -213,24 +202,23 @@ button{
 
 <script>
 
-/* ================= CHESS ================= */
-
-const img={
-P:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
-R:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
-N:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png",
-B:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png",
-Q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png",
-K:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png",
-p:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png",
-r:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png",
-n:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png",
-b:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png",
-q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png",
-k:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png"
+/* CHESS */
+const img = {
+  P:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
+  R:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
+  N:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png",
+  B:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png",
+  Q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png",
+  K:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png",
+  p:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png",
+  r:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png",
+  n:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png",
+  b:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png",
+  q:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png",
+  k:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png"
 };
 
-let state=[
+const startState=[
 "r","n","b","q","k","b","n","r",
 "p","p","p","p","p","p","p","p",
 "","","","","","","","",
@@ -241,105 +229,67 @@ let state=[
 "R","N","B","Q","K","B","N","R"
 ];
 
+let state=[...startState];
 const board=document.getElementById("board");
 
 function draw(){
-board.innerHTML="";
-state.forEach((p,i)=>{
-  const sq=document.createElement("div");
-  const r=Math.floor(i/8),c=i%8;
-  sq.className="square "+((r+c)%2?"black":"white");
+  board.innerHTML="";
+  state.forEach((p,i)=>{
+    const sq=document.createElement("div");
+    const r=Math.floor(i/8),c=i%8;
+    sq.className="square "+((r+c)%2?"black":"white");
 
-  if(p){
-    const im=document.createElement("img");
-    im.className="piece";
-    im.src=img[p];
-    sq.appendChild(im);
-  }
-  board.appendChild(sq);
-});
+    if(p){
+      const im=document.createElement("img");
+      im.className="piece";
+      im.src=img[p];
+      sq.appendChild(im);
+    }
+    board.appendChild(sq);
+  });
 }
 draw();
 
-/* ================= PGN LOADER ================= */
-
-function loadPGN(){
-  let text=document.getElementById("pgn").value;
-  alert("PGN loaded (demo mode)\n\nYou can later connect full chess engine here.");
-}
-
-/* ================= COORDS ================= */
-
-function addCoords(){
-const wrapper=document.querySelector(".board-wrapper");
-const files=["A","B","C","D","E","F","G","H"];
-const size=300/8;
-
-for(let i=0;i<8;i++){
-  let f=document.createElement("div");
-  f.className="coord file";
-  f.style.left=(i*size+18)+"px";
-  f.textContent=files[i];
-  wrapper.appendChild(f);
-}
-
-for(let i=0;i<8;i++){
-  let r=document.createElement("div");
-  r.className="coord rank";
-  r.style.top=(i*size+18)+"px";
-  r.textContent=8-i;
-  wrapper.appendChild(r);
-}
-}
-addCoords();
-
-/* ================= COMMENTS ================= */
-
-let comments=JSON.parse(localStorage.getItem("comments"))||[];
+/* COMMENTS */
+let comments = JSON.parse(localStorage.getItem("comments")) || [];
 
 function render(){
-const box=document.getElementById("comments");
-box.innerHTML="";
+  const box=document.getElementById("comments");
+  box.innerHTML="";
 
-comments.forEach((c,i)=>{
-  const div=document.createElement("div");
-  div.className="comment";
+  comments.forEach((c,i)=>{
+    const div=document.createElement("div");
+    div.className="comment";
 
-  const text=document.createElement("div");
-  text.textContent=c;
+    const text=document.createElement("div");
+    text.textContent=c;
 
-  const del=document.createElement("button");
-  del.className="delete";
-  del.innerHTML="🚫";
-  del.onclick=()=>{
-    comments.splice(i,1);
-    localStorage.setItem("comments",JSON.stringify(comments));
-    render();
-  };
+    const del=document.createElement("button");
+    del.className="delete";
+    del.innerHTML="🚫";
 
-  div.appendChild(text);
-  div.appendChild(del);
-  box.appendChild(div);
-});
+    del.onclick=()=>{
+      comments.splice(i,1);
+      localStorage.setItem("comments",JSON.stringify(comments));
+      render();
+    };
+
+    div.appendChild(text);
+    div.appendChild(del);
+    box.appendChild(div);
+  });
 }
 
 function addComment(){
-const input=document.getElementById("input");
-const text=input.value.trim();
-if(!text) return;
+  const input=document.getElementById("input");
+  const text=input.value.trim();
+  if(!text) return;
 
-comments.push(text);
-localStorage.setItem("comments",JSON.stringify(comments));
-input.value="";
-render();
+  comments.push(text);
+  localStorage.setItem("comments",JSON.stringify(comments));
+  input.value="";
+  render();
 }
-
-/* auto resize */
-const input=document.getElementById("input");
-input.addEventListener("input",()=>{
-input.style.height="auto";
-input.style.height=Math.min(input.scrollHeight,90)+"px";
-});
 
 render();
 
