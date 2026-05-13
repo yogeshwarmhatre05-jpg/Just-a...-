@@ -69,8 +69,7 @@ body{
 
 <script>
 
-/* ♟️ PIECE IMAGES */
-/* PUT YOUR LINKS HERE */
+/* PIECE IMAGES */
 const img = {
   P:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
   R:"https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
@@ -88,7 +87,7 @@ const img = {
 };
 
 /* START POSITION */
-let state = [
+const startState = [
   "r","n","b","q","k","b","n","r",
   "p","p","p","p","p","p","p","p",
   "","","","","","","","",
@@ -99,23 +98,32 @@ let state = [
   "R","N","B","Q","K","B","N","R"
 ];
 
-/* ♟️ SICILIAN DEFENSE: NAJDORF */
+let state = [...startState];
+
+/* ♟️ VIENNA GAME MAIN VARIATION
+1. e4 e5
+2. Nc3 Nf6
+3. f4 d5
+4. fxe5 Nxe4
+*/
+
 const moves = [
   [52,36], // e4
-  [10,26], // c5
-  [62,45], // Nf3
-  [9,17],  // d6
-  [51,35], // d4
-  [26,35], // cxd4
-  [45,35], // Nxd4
-  [1,18],  // Nf6
+  [12,28], // e5
+
   [57,42], // Nc3
-  [8,16]   // a6 (Najdorf)
+  [6,21],  // Nf6
+
+  [53,37], // f4
+  [11,27], // d5
+
+  [37,28], // fxe5
+  [21,36]  // Nxe4
 ];
 
 const board = document.getElementById("board");
 
-/* DRAW */
+/* DRAW BOARD */
 function draw(){
   board.innerHTML = "";
 
@@ -161,22 +169,40 @@ function addCoords(){
   }
 }
 
-/* PLAY MOVES */
+/* PLAY MOVES LOOP */
 let moveIndex = 0;
 
+function resetBoard(){
+  state = [...startState];
+  draw();
+  moveIndex = 0;
+}
+
 function play(){
-  if(moveIndex >= moves.length) return;
+
+  if(moveIndex >= moves.length){
+
+    setTimeout(()=>{
+      resetBoard();
+      play();
+    },1500);
+
+    return;
+  }
 
   setTimeout(()=>{
+
     const [from,to] = moves[moveIndex];
 
     state[to] = state[from];
     state[from] = "";
 
     moveIndex++;
+
     draw();
     play();
-  }, 700);
+
+  },700);
 }
 
 /* START */
