@@ -2,11 +2,11 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Chess vs Bot + Lichess Puzzle</title>
+<title>Lichess Style Puzzles</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>
 
 <style>
-*{box-sizing:border-box;}
-
 body{
 margin:0;
 height:100vh;
@@ -15,7 +15,6 @@ justify-content:center;
 align-items:center;
 background:#2f3942;
 font-family:Arial;
-overflow:hidden;
 }
 
 .container{
@@ -25,10 +24,31 @@ align-items:center;
 gap:10px;
 }
 
+.board{
+width:360px;
+height:360px;
+display:grid;
+grid-template-columns:repeat(8,1fr);
+grid-template-rows:repeat(8,1fr);
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 0 20px rgba(0,0,0,0.6);
+}
+
+.square{
+display:flex;
+justify-content:center;
+align-items:center;
+cursor:pointer;
+font-size:28px;
+}
+
+.light{background:#d7d4c0;}
+.dark{background:#0f172a;color:white;}
+
 .turn{
 color:white;
-font-size:22px;
-font-weight:bold;
+font-size:20px;
 }
 
 button{
@@ -37,43 +57,6 @@ border:none;
 border-radius:8px;
 cursor:pointer;
 }
-
-.board{
-width:340px;
-height:340px;
-display:grid;
-grid-template-columns:repeat(8,1fr);
-grid-template-rows:repeat(8,1fr);
-border-radius:12px;
-overflow:hidden;
-box-shadow:0 0 25px rgba(0,0,0,0.7);
-}
-
-.square{
-display:flex;
-justify-content:center;
-align-items:center;
-position:relative;
-cursor:pointer;
-}
-
-.white{background:#d7d4c0;}
-.black{background:#0F172A;}
-
-.square img{
-width:85%;
-height:85%;
-pointer-events:none;
-}
-
-.highlight::after{
-content:"";
-width:18px;
-height:18px;
-border-radius:50%;
-background:rgba(0,255,100,0.7);
-position:absolute;
-}
 </style>
 </head>
 
@@ -81,7 +64,7 @@ position:absolute;
 
 <div class="container">
 
-<div class="turn" id="turnText">White to move</div>
+<div class="turn" id="status">Loading...</div>
 
 <button onclick="loadPuzzle()">New Puzzle</button>
 
@@ -91,248 +74,131 @@ position:absolute;
 
 <script>
 
-const board=document.getElementById("board");
-const turnText=document.getElementById("turnText");
-const files="abcdefgh";
+const boardEl=document.getElementById("board");
+const statusEl=document.getElementById("status");
 
-let currentTurn="w";
-let selectedPiece=null;
-let legalMoves=[];
-let enPassantSquare=null;
+let game=new Chess();
 
-let puzzleMode=false;
 let puzzleMoves=[];
-let puzzleIndex=0;
+let moveIndex=0;
 
-function pieceImg(type){
-return `https://images.chesscomfiles.com/chess-themes/pieces/classic/150/${type}.png`;
-}
+let selected=null;
 
-/* ---------------- PIECES ---------------- */
-
-let pieces={};
-
-function setStartPosition(){
-pieces={
-WR1:{type:"wr",square:"a1"},WN1:{type:"wn",square:"b1"},
-WB1:{type:"wb",square:"c1"},WQ:{type:"wq",square:"d1"},
-WK:{type:"wk",square:"e1"},WB2:{type:"wb",square:"f1"},
-WN2:{type:"wn",square:"g1"},WR2:{type:"wr",square:"h1"},
-
-WP1:{type:"wp",square:"a2"},WP2:{type:"wp",square:"b2"},
-WP3:{type:"wp",square:"c2"},WP4:{type:"wp",square:"d2"},
-WP5:{type:"wp",square:"e2"},WP6:{type:"wp",square:"f2"},
-WP7:{type:"wp",square:"g2"},WP8:{type:"wp",square:"h2"},
-
-BR1:{type:"br",square:"a8"},BN1:{type:"bn",square:"b8"},
-BB1:{type:"bb",square:"c8"},BQ:{type:"bq",square:"d8"},
-BK:{type:"bk",square:"e8"},BB2:{type:"bb",square:"f8"},
-BN2:{type:"bn",square:"g8"},BR2:{type:"br",square:"h8"},
-
-BP1:{type:"bp",square:"a7"},BP2:{type:"bp",square:"b7"},
-BP3:{type:"bp",square:"c7"},BP4:{type:"bp",square:"d7"},
-BP5:{type:"bp",square:"e7"},BP6:{type:"bp",square:"f7"},
-BP7:{type:"bp",square:"g7"},BP8:{type:"bp",square:"h7"}
+/* Unicode pieces */
+const pieces={
+p:"♟",r:"♜",n:"♞",b:"♝",q:"♛",k:"♚",
+P:"♙",R:"♖",N:"♘",B:"♗",Q:"♕",K:"♔"
 };
-}
 
-/* ---------------- FEN ---------------- */
+function draw(){
 
-function loadFEN(fen){
-setStartPosition();
+boardEl.innerHTML="";
 
-let rows=fen.split(" ")[0].split("/");
-
-pieces={};
-
-let id=0;
+let board=game.board();
 
 for(let r=0;r<8;r++){
-let row=rows[r];
-let file=0;
+for(let c=0;c<8;c++){
 
-for(let ch of row){
-if(!isNaN(ch)){
-file+=parseInt(ch);
-}else{
-let color=ch===ch.toUpperCase()?"w":"b";
-let type=ch.toLowerCase();
+let square=document.createElement("div");
+square.className="square "+((r+c)%2===0?"light":"dark");
 
-let sq=files[file]+(r+1);
+let piece=board[r][c];
 
-pieces["p"+id++]={type:color+type,square:sq};
-
-file++;
-}
-}
-}
+if(piece){
+square.innerText=pieces[piece.type===piece.type.toLowerCase()?piece.type:piece.type.toUpperCase()];
 }
 
-/* ---------------- HELPERS ---------------- */
+let file="abcdefgh"[c];
+let rank=8-r;
+let sq=file+rank;
 
-function squareToCoords(sq){
-return [8-parseInt(sq[1]),files.indexOf(sq[0])];
-}
+square.onclick=()=>onSquareClick(sq);
 
-function coordsToSquare(r,c){
-return files[c]+(8-r);
-}
-
-function getPieceAt(sq){
-for(let id in pieces){
-if(pieces[id].square===sq) return pieces[id];
-}
-return null;
-}
-
-function inside(r,c){
-return r>=0&&r<8&&c>=0&&c<8;
-}
-
-/* ---------------- MOVES ---------------- */
-
-function getMoves(piece){
-let type=piece.type;
-let color=type[0];
-let [r,c]=squareToCoords(piece.square);
-
-let moves=[];
-
-if(type[1]==="p"){
-let dir=color==="w"?-1:1;
-let nr=r+dir;
-if(inside(nr,c)){
-let sq=coordsToSquare(nr,c);
-if(!getPieceAt(sq)) moves.push(sq);
+boardEl.appendChild(square);
 }
 }
-
-return moves;
+statusEl.innerText=game.turn()==="w"?"White to move":"Black to move";
 }
 
-/* ---------------- MOVE ---------------- */
-
-function movePiece(piece,to){
-
-for(let id in pieces){
-if(pieces[id].square===to) delete pieces[id];
+/* convert e2e4 -> {from:e2,to:e4} */
+function parseMove(m){
+return {from:m.slice(0,2),to:m.slice(2,4)};
 }
 
-piece.square=to;
-currentTurn=currentTurn==="w"?"b":"w";
-turnText.innerText=currentTurn==="w"?"White to move":"Black to move";
+function onSquareClick(square){
 
-/* puzzle check */
-if(puzzleMode){
-checkPuzzleMove(to);
-}
+if(!selected){
+selected=square;
+return;
 }
 
-/* ---------------- PUZZLE ---------------- */
+let move={
+from:selected,
+to:square,
+promotion:"q"
+};
 
-async function loadPuzzle(){
+let result=game.move(move);
 
-let res=await fetch("https://lichess.org/api/puzzle/daily");
-let data=await res.json();
+if(result){
+handlePuzzleMove(move.from+move.to);
+}
 
-let fen=data.game.fen;
-let line=data.puzzle.solution;
-
-puzzleMoves=line;
-puzzleIndex=0;
-puzzleMode=true;
-
-loadFEN(fen);
-
-turnText.innerText="Solve Puzzle";
-
+selected=null;
 draw();
 }
 
-/* check puzzle move */
-function checkPuzzleMove(move){
+/* PUZZLE LOGIC */
 
-if(puzzleMoves[puzzleIndex]===move){
-puzzleIndex++;
+function handlePuzzleMove(uci){
 
-if(puzzleIndex>=puzzleMoves.length){
-turnText.innerText="Solved!";
-puzzleMode=false;
+if(!puzzleMoves.length) return;
+
+/* correct move */
+if(puzzleMoves[moveIndex]===uci){
+
+moveIndex++;
+
+/* if puzzle finished */
+if(moveIndex>=puzzleMoves.length){
+statusEl.innerText="Puzzle Solved!";
 return;
 }
 
 /* auto opponent move */
 setTimeout(()=>{
-let oppMove=puzzleMoves[puzzleIndex];
-puzzleIndex++;
-
-autoMove(oppMove);
+let bot=parseMove(puzzleMoves[moveIndex]);
+game.move(bot);
+moveIndex++;
+draw();
 },500);
 
 }else{
-turnText.innerText="Wrong move!";
+statusEl.innerText="Wrong move!";
 }
 }
 
-function autoMove(move){
+/* LOAD LICHESS PUZZLE */
 
-for(let id in pieces){
-if(pieces[id].square===move.slice(0,2)){
-movePiece(pieces[id],move.slice(2,4));
-break;
-}
-}
+async function loadPuzzle(){
+
+statusEl.innerText="Loading puzzle...";
+
+let res=await fetch("https://lichess.org/api/puzzle/daily");
+let data=await res.json();
+
+game=new Chess(data.game.fen);
+
+/* solution line */
+puzzleMoves=data.puzzle.solution;
+moveIndex=0;
 
 draw();
+
+statusEl.innerText="Solve the puzzle";
 }
 
-/* ---------------- DRAW ---------------- */
-
-function draw(){
-
-board.innerHTML="";
-
-for(let r=8;r>=1;r--){
-for(let c=0;c<8;c++){
-
-let sq=files[c]+r;
-
-let div=document.createElement("div");
-div.className="square "+(((r+c)%2)?"white":"black");
-
-div.onclick=()=>handleClick(sq);
-
-let p=getPieceAt(sq);
-if(p){
-let img=document.createElement("img");
-img.src=pieceImg(p.type);
-div.appendChild(img);
-}
-
-board.appendChild(div);
-}
-}
-}
-
-/* ---------------- CLICK ---------------- */
-
-function handleClick(sq){
-
-if(!selectedPiece){
-let p=getPieceAt(sq);
-if(p&&p.type[0]==="w"){
-selectedPiece=p;
-}
-draw();
-return;
-}
-
-movePiece(selectedPiece,sq);
-selectedPiece=null;
-draw();
-}
-
-setStartPosition();
+loadPuzzle();
 draw();
 
 </script>
