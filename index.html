@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Lichess Puzzle Fixed</title>
+<title>Offline Chess Puzzles</title>
 
 <style>
 body{
@@ -30,24 +30,18 @@ grid-template-columns:repeat(8,1fr);
 grid-template-rows:repeat(8,1fr);
 border-radius:10px;
 overflow:hidden;
-box-shadow:0 0 20px rgba(0,0,0,0.6);
 }
 
 .square{
 display:flex;
 justify-content:center;
 align-items:center;
-cursor:pointer;
 font-size:28px;
+cursor:pointer;
 }
 
 .light{background:#d7d4c0;}
 .dark{background:#0f172a;color:white;}
-
-.turn{
-color:white;
-font-size:18px;
-}
 
 button{
 padding:8px 12px;
@@ -55,58 +49,71 @@ border:none;
 border-radius:8px;
 cursor:pointer;
 }
-</style>
 
+.turn{
+color:white;
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-<div class="turn" id="status">Loading...</div>
-
+<div class="turn" id="status">Loading</div>
 <button onclick="loadPuzzle()">New Puzzle</button>
 
 <div class="board" id="board"></div>
 
 </div>
 
-<!-- SAFE CDN LOAD -->
-<script src="https://cdn.jsdelivr.net/npm/chess.js@1.0.0/dist/chess.min.js"></script>
-
 <script>
 
-let game;
-let boardEl=document.getElementById("board");
-let statusEl=document.getElementById("status");
+/* ---------- BASIC STATE ---------- */
 
-let puzzleMoves=[];
-let index=0;
+let board=[];
 let selected=null;
+
+let puzzle=[];
+let index=0;
+
+const files="abcdefgh";
 
 const pieces={
 p:"♟",r:"♜",n:"♞",b:"♝",q:"♛",k:"♚",
 P:"♙",R:"♖",N:"♘",B:"♗",Q:"♕",K:"♔"
 };
 
-/* INIT SAFE */
-function initGame(){
-if(typeof Chess==="undefined"){
-statusEl.innerText="Chess library failed to load";
-return false;
+/* ---------- SIMPLE FEN LOADER ---------- */
+
+function loadFEN(fen){
+board=[];
+let rows=fen.split(" ")[0].split("/");
+
+for(let r=0;r<8;r++){
+let row=[];
+for(let c=0;c<8;c++) row[c]=null;
+
+let file=0;
+for(let ch of rows[r]){
+if(!isNaN(ch)){
+file+=parseInt(ch);
+}else{
+row[file]=ch;
+file++;
 }
-game=new Chess();
-return true;
+}
+board[r]=row;
+}
 }
 
-/* DRAW BOARD */
+/* ---------- DRAW ---------- */
+
+const el=document.getElementById("board");
+const status=document.getElementById("status");
+
 function draw(){
-
-if(!game) return;
-
-boardEl.innerHTML="";
-
-let b=game.board();
+el.innerHTML="";
 
 for(let r=0;r<8;r++){
 for(let c=0;c<8;c++){
@@ -114,97 +121,110 @@ for(let c=0;c<8;c++){
 let sq=document.createElement("div");
 sq.className="square "+((r+c)%2?"dark":"light");
 
-let p=b[r][c];
-if(p){
-sq.innerText=pieces[p.type===p.type.toLowerCase()?p.type:p.type.toUpperCase()];
-}
+let p=board[r][c];
+if(p) sq.innerText=pieces[p];
 
-let square="abcdefgh"[c]+(8-r);
+sq.onclick=()=>click(r,c);
 
-sq.onclick=()=>click(square);
-
-boardEl.appendChild(sq);
+el.appendChild(sq);
 }
 }
 
-statusEl.innerText=game.turn()==="w"?"White to move":"Black to move";
+status.innerText="Solve puzzle";
 }
 
-/* CLICK */
-function click(square){
+/* ---------- CLICK ---------- */
+
+function click(r,c){
 
 if(!selected){
-selected=square;
+selected={r,c};
 return;
 }
 
-let move=game.move({
-from:selected,
-to:square,
-promotion:"q"
-});
+let from=selected;
+let to={r,c};
 
-if(move){
-check(move.from+move.to);
-}
+movePiece(from,to);
 
 selected=null;
 draw();
 }
 
-/* PUZZLE LOGIC */
-function check(uci){
+/* ---------- MOVE (VERY SIMPLIFIED) ---------- */
 
-if(!puzzleMoves.length) return;
+function movePiece(from,to){
 
-if(puzzleMoves[index]===uci){
+let p=board[from.r][from.c];
+if(!p) return;
+
+board[to.r][to.c]=p;
+board[from.r][from.c]=null;
+
+let uci=
+files[from.c]+(8-from.r)+files[to.c]+(8-to.r);
+
+checkPuzzle(uci);
+}
+
+/* ---------- PUZZLE ---------- */
+
+function checkPuzzle(uci){
+
+if(puzzle[index]===uci){
 index++;
 
-if(index>=puzzleMoves.length){
-statusEl.innerText="Solved!";
+if(index>=puzzle.length){
+status.innerText="Solved!";
 return;
 }
 
+/* auto opponent */
 setTimeout(()=>{
-let m=puzzleMoves[index];
-game.move({from:m.slice(0,2),to:m.slice(2,4)});
+let m=puzzle[index];
+autoMove(m);
 index++;
-draw();
 },400);
 
 }else{
-statusEl.innerText="Wrong move!";
+status.innerText="Wrong move!";
 }
 }
 
-/* LOAD PUZZLE */
+function autoMove(uci){
+
+let f=uci.slice(0,2);
+let t=uci.slice(2,4);
+
+let from={r:8-parseInt(f[1]),c:files.indexOf(f[0])};
+let to={r:8-parseInt(t[1]),c:files.indexOf(t[0])};
+
+board[to.r][to.c]=board[from.r][from.c];
+board[from.r][from.c]=null;
+
+draw();
+}
+
+/* ---------- PUZZLE LOADER ---------- */
+
 async function loadPuzzle(){
 
-if(!initGame()) return;
+status.innerText="Loading...";
 
-statusEl.innerText="Loading...";
-
-try{
 let res=await fetch("https://lichess.org/api/puzzle/daily");
 let data=await res.json();
 
-game=new Chess(data.game.fen);
+loadFEN(data.game.fen);
 
-puzzleMoves=data.puzzle.solution;
+puzzle=data.puzzle.solution;
 index=0;
 
 draw();
-
-statusEl.innerText="Solve it";
-
-}catch(e){
-statusEl.innerText="Puzzle load failed";
-console.log(e);
-}
 }
 
-initGame();
-draw();
+/* START */
+
+loadPuzzle();
 
 </script>
 
