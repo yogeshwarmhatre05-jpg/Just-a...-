@@ -1,303 +1,341 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pixel Glow Club</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+<title>Chess vs Bot + Lichess Puzzle</title>
 
 <style>
+*{box-sizing:border-box;}
 
-*{
-  box-sizing:border-box;
+body{
+margin:0;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#2f3942;
+font-family:Arial;
+overflow:hidden;
 }
 
-html,body{
-  margin:0;
-  padding:0;
-  min-height:100vh;
-  font-family:Arial,sans-serif;
-  overflow-x:hidden;
-  transition:background 1s ease;
-  background:#0F172A;
-  color:#E2E8F0;
+.container{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:10px;
 }
 
-/* SUBTLE BACKGROUND LAYER */
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(34,197,94,0.15), transparent 40%),
-    radial-gradient(circle at 80% 30%, rgba(59,130,246,0.12), transparent 45%),
-    radial-gradient(circle at 50% 80%, rgba(168,85,247,0.10), transparent 50%);
-  z-index:-2;
+.turn{
+color:white;
+font-size:22px;
+font-weight:bold;
 }
 
-/* RGB BORDER */
-.rgbBorder{
-  position:fixed;
-  inset:0;
-  padding:3px;
-  background:linear-gradient(
-    90deg,
-    #ff0000,#ff9900,#ffee00,#00ff00,#00ffff,#0066ff,#aa00ff,#ff0000
-  );
-  background-size:400% 400%;
-  animation:rgbMove 8s linear infinite;
-  z-index:-1;
-  filter:blur(0.2px);
+button{
+padding:8px 12px;
+border:none;
+border-radius:8px;
+cursor:pointer;
 }
 
-.rgbBorder::before{
-  content:"";
-  position:absolute;
-  inset:3px;
-  background:#0F172A;
+.board{
+width:340px;
+height:340px;
+display:grid;
+grid-template-columns:repeat(8,1fr);
+grid-template-rows:repeat(8,1fr);
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 0 25px rgba(0,0,0,0.7);
 }
 
-@keyframes rgbMove{
-  0%{background-position:0% 50%;}
-  100%{background-position:400% 50%;}
+.square{
+display:flex;
+justify-content:center;
+align-items:center;
+position:relative;
+cursor:pointer;
 }
 
-@keyframes discoRGB{
-  0%{background-position:0% 50%;}
-  50%{background-position:100% 50%;}
-  100%{background-position:0% 50%;}
+.white{background:#d7d4c0;}
+.black{background:#0F172A;}
+
+.square img{
+width:85%;
+height:85%;
+pointer-events:none;
 }
 
-/* MAIN BOX */
-.mainBox{
-  width:310px;
-  margin:20px auto;
-  padding:16px;
-  text-align:center;
-
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,0.08);
-
-  background:rgba(15,23,42,0.75);
-  backdrop-filter: blur(12px);
-
-  box-shadow:0 10px 40px rgba(0,0,0,0.5);
-  transition:all 0.6s ease;
+.highlight::after{
+content:"";
+width:18px;
+height:18px;
+border-radius:50%;
+background:rgba(0,255,100,0.7);
+position:absolute;
 }
-
-.themeText{
-  transition:all 0.5s ease;
-}
-
-/* PIXEL HEADER */
-.pixelGlowBox{
-  width:270px;
-  height:65px;
-  margin:auto;
-  position:relative;
-  border-radius:12px;
-  overflow:hidden;
-}
-
-.pixelBorder{
-  position:absolute;
-  inset:0;
-  padding:2px;
-  background:linear-gradient(90deg,#22C55E,white,#22C55E);
-  background-size:300% 300%;
-  animation:discoRGB 6s ease-in-out infinite;
-}
-
-.pixelBorder::before{
-  content:"";
-  position:absolute;
-  inset:2px;
-  background:rgba(15,23,42,0.9);
-  backdrop-filter: blur(8px);
-}
-
-#pixelText{
-  position:absolute;
-  inset:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-family:'Montserrat',sans-serif;
-  font-weight:700;
-  letter-spacing:2px;
-  z-index:2;
-  text-shadow:0 0 12px rgba(34,197,94,0.6);
-}
-
-/* PLAYER CARD */
-.player{
-  width:260px;
-  margin:10px auto;
-  padding:10px;
-  border-radius:12px;
-
-  background:rgba(30,41,59,0.35);
-  border:1px solid rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-
-  transition:0.4s ease;
-}
-
-.player:hover{
-  transform:translateY(-2px);
-}
-
-.live-dot{
-  width:8px;
-  height:8px;
-  background:#22C55E;
-  border-radius:50%;
-  position:absolute;
-  margin-top:-5px;
-  margin-left:-5px;
-  box-shadow:0 0 10px #22C55E;
-  animation:pulse 1.2s infinite;
-}
-
-@keyframes pulse{
-  0%{opacity:1;}
-  50%{opacity:0.3;}
-  100%{opacity:1;}
-}
-
-.marquee span{
-  font-size:11px;
-}
-
-/* VIDEO SCREEN */
-.screen{
-  width:100%;
-  aspect-ratio:16/9;
-  border-radius:10px;
-  overflow:hidden;
-  border:1px solid rgba(255,255,255,0.08);
-}
-
-/* BUTTONS */
-.controls button{
-  background:rgba(255,255,255,0.06);
-  color:#E2E8F0;
-  border:1px solid rgba(255,255,255,0.08);
-  width:30px;
-  height:22px;
-  border-radius:6px;
-  cursor:pointer;
-  transition:0.2s ease;
-}
-
-.controls button:hover{
-  transform:scale(1.1);
-  background:rgba(34,197,94,0.2);
-}
-
-/* GAME */
-#game{
-  width:250px;
-  height:250px;
-  border-radius:14px;
-  background:radial-gradient(circle,#1E293B,#0F172A);
-  border:1px solid rgba(255,255,255,0.08);
-  box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
-}
-
-/* CALENDAR */
-.calendar{
-  width:260px;
-  margin:auto;
-  padding:12px;
-  border-radius:14px;
-
-  background:rgba(30,41,59,0.35);
-  border:1px solid rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-}
-
-.header{
-  font-weight:700;
-  margin-bottom:8px;
-}
-
-.dates div{
-  padding:6px 0;
-  border-radius:6px;
-  background:rgba(255,255,255,0.05);
-  font-size:11px;
-  transition:0.2s;
-}
-
-.dates div:hover{
-  transform:scale(1.05);
-}
-
-.today{
-  background:#22C55E !important;
-  color:#0F172A;
-}
-
-/* PARTNERS */
-.section{
-  width:270px;
-  margin:auto;
-  padding:14px;
-  border-radius:14px;
-
-  background:rgba(30,41,59,0.35);
-  border:1px solid rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-}
-
-.section-title{
-  padding:8px;
-  border-radius:20px;
-  background:rgba(255,255,255,0.06);
-  margin-bottom:10px;
-}
-
-.partner-card{
-  padding:12px;
-  border-radius:12px;
-  background:rgba(255,255,255,0.05);
-  margin-bottom:10px;
-  transition:0.2s;
-}
-
-.partner-card:hover{
-  transform:scale(1.04);
-  box-shadow:0 0 20px rgba(34,197,94,0.2);
-}
-
-.partner-img{
-  width:70px;
-  height:70px;
-  border-radius:12px;
-}
-
-.partner-name{
-  margin-top:6px;
-  font-size:13px;
-}
-
 </style>
 </head>
 
 <body>
 
-<div class="rgbBorder"></div>
+<div class="container">
 
-<div class="mainBox">
+<div class="turn" id="turnText">White to move</div>
 
-<!-- KEEP YOUR ORIGINAL HTML EXACTLY SAME BELOW THIS -->
-<!-- I DID NOT CHANGE STRUCTURE OR JS -->
+<button onclick="loadPuzzle()">New Puzzle</button>
 
-<!-- (Your full original body content remains unchanged here) -->
+<div class="board" id="board"></div>
 
 </div>
+
+<script>
+
+const board=document.getElementById("board");
+const turnText=document.getElementById("turnText");
+const files="abcdefgh";
+
+let currentTurn="w";
+let selectedPiece=null;
+let legalMoves=[];
+let enPassantSquare=null;
+
+let puzzleMode=false;
+let puzzleMoves=[];
+let puzzleIndex=0;
+
+function pieceImg(type){
+return `https://images.chesscomfiles.com/chess-themes/pieces/classic/150/${type}.png`;
+}
+
+/* ---------------- PIECES ---------------- */
+
+let pieces={};
+
+function setStartPosition(){
+pieces={
+WR1:{type:"wr",square:"a1"},WN1:{type:"wn",square:"b1"},
+WB1:{type:"wb",square:"c1"},WQ:{type:"wq",square:"d1"},
+WK:{type:"wk",square:"e1"},WB2:{type:"wb",square:"f1"},
+WN2:{type:"wn",square:"g1"},WR2:{type:"wr",square:"h1"},
+
+WP1:{type:"wp",square:"a2"},WP2:{type:"wp",square:"b2"},
+WP3:{type:"wp",square:"c2"},WP4:{type:"wp",square:"d2"},
+WP5:{type:"wp",square:"e2"},WP6:{type:"wp",square:"f2"},
+WP7:{type:"wp",square:"g2"},WP8:{type:"wp",square:"h2"},
+
+BR1:{type:"br",square:"a8"},BN1:{type:"bn",square:"b8"},
+BB1:{type:"bb",square:"c8"},BQ:{type:"bq",square:"d8"},
+BK:{type:"bk",square:"e8"},BB2:{type:"bb",square:"f8"},
+BN2:{type:"bn",square:"g8"},BR2:{type:"br",square:"h8"},
+
+BP1:{type:"bp",square:"a7"},BP2:{type:"bp",square:"b7"},
+BP3:{type:"bp",square:"c7"},BP4:{type:"bp",square:"d7"},
+BP5:{type:"bp",square:"e7"},BP6:{type:"bp",square:"f7"},
+BP7:{type:"bp",square:"g7"},BP8:{type:"bp",square:"h7"}
+};
+}
+
+/* ---------------- FEN ---------------- */
+
+function loadFEN(fen){
+setStartPosition();
+
+let rows=fen.split(" ")[0].split("/");
+
+pieces={};
+
+let id=0;
+
+for(let r=0;r<8;r++){
+let row=rows[r];
+let file=0;
+
+for(let ch of row){
+if(!isNaN(ch)){
+file+=parseInt(ch);
+}else{
+let color=ch===ch.toUpperCase()?"w":"b";
+let type=ch.toLowerCase();
+
+let sq=files[file]+(r+1);
+
+pieces["p"+id++]={type:color+type,square:sq};
+
+file++;
+}
+}
+}
+}
+
+/* ---------------- HELPERS ---------------- */
+
+function squareToCoords(sq){
+return [8-parseInt(sq[1]),files.indexOf(sq[0])];
+}
+
+function coordsToSquare(r,c){
+return files[c]+(8-r);
+}
+
+function getPieceAt(sq){
+for(let id in pieces){
+if(pieces[id].square===sq) return pieces[id];
+}
+return null;
+}
+
+function inside(r,c){
+return r>=0&&r<8&&c>=0&&c<8;
+}
+
+/* ---------------- MOVES ---------------- */
+
+function getMoves(piece){
+let type=piece.type;
+let color=type[0];
+let [r,c]=squareToCoords(piece.square);
+
+let moves=[];
+
+if(type[1]==="p"){
+let dir=color==="w"?-1:1;
+let nr=r+dir;
+if(inside(nr,c)){
+let sq=coordsToSquare(nr,c);
+if(!getPieceAt(sq)) moves.push(sq);
+}
+}
+
+return moves;
+}
+
+/* ---------------- MOVE ---------------- */
+
+function movePiece(piece,to){
+
+for(let id in pieces){
+if(pieces[id].square===to) delete pieces[id];
+}
+
+piece.square=to;
+currentTurn=currentTurn==="w"?"b":"w";
+turnText.innerText=currentTurn==="w"?"White to move":"Black to move";
+
+/* puzzle check */
+if(puzzleMode){
+checkPuzzleMove(to);
+}
+}
+
+/* ---------------- PUZZLE ---------------- */
+
+async function loadPuzzle(){
+
+let res=await fetch("https://lichess.org/api/puzzle/daily");
+let data=await res.json();
+
+let fen=data.game.fen;
+let line=data.puzzle.solution;
+
+puzzleMoves=line;
+puzzleIndex=0;
+puzzleMode=true;
+
+loadFEN(fen);
+
+turnText.innerText="Solve Puzzle";
+
+draw();
+}
+
+/* check puzzle move */
+function checkPuzzleMove(move){
+
+if(puzzleMoves[puzzleIndex]===move){
+puzzleIndex++;
+
+if(puzzleIndex>=puzzleMoves.length){
+turnText.innerText="Solved!";
+puzzleMode=false;
+return;
+}
+
+/* auto opponent move */
+setTimeout(()=>{
+let oppMove=puzzleMoves[puzzleIndex];
+puzzleIndex++;
+
+autoMove(oppMove);
+},500);
+
+}else{
+turnText.innerText="Wrong move!";
+}
+}
+
+function autoMove(move){
+
+for(let id in pieces){
+if(pieces[id].square===move.slice(0,2)){
+movePiece(pieces[id],move.slice(2,4));
+break;
+}
+}
+
+draw();
+}
+
+/* ---------------- DRAW ---------------- */
+
+function draw(){
+
+board.innerHTML="";
+
+for(let r=8;r>=1;r--){
+for(let c=0;c<8;c++){
+
+let sq=files[c]+r;
+
+let div=document.createElement("div");
+div.className="square "+(((r+c)%2)?"white":"black");
+
+div.onclick=()=>handleClick(sq);
+
+let p=getPieceAt(sq);
+if(p){
+let img=document.createElement("img");
+img.src=pieceImg(p.type);
+div.appendChild(img);
+}
+
+board.appendChild(div);
+}
+}
+}
+
+/* ---------------- CLICK ---------------- */
+
+function handleClick(sq){
+
+if(!selectedPiece){
+let p=getPieceAt(sq);
+if(p&&p.type[0]==="w"){
+selectedPiece=p;
+}
+draw();
+return;
+}
+
+movePiece(selectedPiece,sq);
+selectedPiece=null;
+draw();
+}
+
+setStartPosition();
+draw();
+
+</script>
 
 </body>
 </html>
