@@ -2,7 +2,9 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Offline Chess Puzzles</title>
+<title>Lichess-Style Puzzle Engine</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>
 
 <style>
 body{
@@ -30,14 +32,16 @@ grid-template-columns:repeat(8,1fr);
 grid-template-rows:repeat(8,1fr);
 border-radius:10px;
 overflow:hidden;
+box-shadow:0 0 20px rgba(0,0,0,0.5);
 }
 
 .square{
 display:flex;
 justify-content:center;
 align-items:center;
-font-size:28px;
 cursor:pointer;
+font-size:30px;
+user-select:none;
 }
 
 .light{background:#d7d4c0;}
@@ -50,8 +54,9 @@ border-radius:8px;
 cursor:pointer;
 }
 
-.turn{
+.status{
 color:white;
+font-size:18px;
 }
 </style>
 </head>
@@ -60,7 +65,8 @@ color:white;
 
 <div class="container">
 
-<div class="turn" id="status">Loading</div>
+<div class="status" id="status">Loading engine...</div>
+
 <button onclick="loadPuzzle()">New Puzzle</button>
 
 <div class="board" id="board"></div>
@@ -69,51 +75,23 @@ color:white;
 
 <script>
 
-/* ---------- BASIC STATE ---------- */
-
-let board=[];
+let game;
+let puzzleLine=[];
+let index=0;
 let selected=null;
 
-let puzzle=[];
-let index=0;
-
-const files="abcdefgh";
+const boardEl=document.getElementById("board");
+const statusEl=document.getElementById("status");
 
 const pieces={
 p:"♟",r:"♜",n:"♞",b:"♝",q:"♛",k:"♚",
 P:"♙",R:"♖",N:"♘",B:"♗",Q:"♕",K:"♔"
 };
 
-/* ---------- SIMPLE FEN LOADER ---------- */
-
-function loadFEN(fen){
-board=[];
-let rows=fen.split(" ")[0].split("/");
-
-for(let r=0;r<8;r++){
-let row=[];
-for(let c=0;c<8;c++) row[c]=null;
-
-let file=0;
-for(let ch of rows[r]){
-if(!isNaN(ch)){
-file+=parseInt(ch);
-}else{
-row[file]=ch;
-file++;
-}
-}
-board[r]=row;
-}
-}
-
-/* ---------- DRAW ---------- */
-
-const el=document.getElementById("board");
-const status=document.getElementById("status");
-
+/* ---------------- DRAW ---------------- */
 function draw(){
-el.innerHTML="";
+boardEl.innerHTML="";
+let b=game.board();
 
 for(let r=0;r<8;r++){
 for(let c=0;c<8;c++){
@@ -121,108 +99,93 @@ for(let c=0;c<8;c++){
 let sq=document.createElement("div");
 sq.className="square "+((r+c)%2?"dark":"light");
 
-let p=board[r][c];
-if(p) sq.innerText=pieces[p];
-
-sq.onclick=()=>click(r,c);
-
-el.appendChild(sq);
-}
+let p=b[r][c];
+if(p){
+let key=p.color==="w"?p.type.toUpperCase():p.type;
+sq.innerText=pieces[key];
 }
 
-status.innerText="Solve puzzle";
+let square="abcdefgh"[c]+(8-r);
+sq.onclick=()=>click(square);
+
+boardEl.appendChild(sq);
+}
+}
 }
 
-/* ---------- CLICK ---------- */
-
-function click(r,c){
+/* ---------------- CLICK ---------------- */
+function click(square){
 
 if(!selected){
-selected={r,c};
+selected=square;
 return;
 }
 
-let from=selected;
-let to={r,c};
+let move=game.move({
+from:selected,
+to:square,
+promotion:"q"
+});
 
-movePiece(from,to);
+if(move){
+handle(move.from+move.to);
+}
 
 selected=null;
 draw();
 }
 
-/* ---------- MOVE (VERY SIMPLIFIED) ---------- */
+/* ---------------- PUZZLE ENGINE ---------------- */
+function handle(uci){
 
-function movePiece(from,to){
-
-let p=board[from.r][from.c];
-if(!p) return;
-
-board[to.r][to.c]=p;
-board[from.r][from.c]=null;
-
-let uci=
-files[from.c]+(8-from.r)+files[to.c]+(8-to.r);
-
-checkPuzzle(uci);
-}
-
-/* ---------- PUZZLE ---------- */
-
-function checkPuzzle(uci){
-
-if(puzzle[index]===uci){
+if(puzzleLine[index]===uci){
 index++;
 
-if(index>=puzzle.length){
-status.innerText="Solved!";
+if(index>=puzzleLine.length){
+statusEl.innerText="Solved!";
 return;
 }
 
-/* auto opponent */
+/* opponent move */
 setTimeout(()=>{
-let m=puzzle[index];
-autoMove(m);
+let m=puzzleLine[index];
+game.move({from:m.slice(0,2),to:m.slice(2,4),promotion:"q"});
 index++;
-},400);
+draw();
+},300);
 
 }else{
-status.innerText="Wrong move!";
+statusEl.innerText="Wrong move!";
 }
 }
 
-function autoMove(uci){
-
-let f=uci.slice(0,2);
-let t=uci.slice(2,4);
-
-let from={r:8-parseInt(f[1]),c:files.indexOf(f[0])};
-let to={r:8-parseInt(t[1]),c:files.indexOf(t[0])};
-
-board[to.r][to.c]=board[from.r][from.c];
-board[from.r][from.c]=null;
-
-draw();
-}
-
-/* ---------- PUZZLE LOADER ---------- */
-
+/* ---------------- LOAD PUZZLE ---------------- */
 async function loadPuzzle(){
 
-status.innerText="Loading...";
+statusEl.innerText="Loading puzzle...";
 
+try{
 let res=await fetch("https://lichess.org/api/puzzle/daily");
 let data=await res.json();
 
-loadFEN(data.game.fen);
+game=new Chess(data.game.fen);
 
-puzzle=data.puzzle.solution;
+puzzleLine=data.puzzle.solution;
 index=0;
 
 draw();
+
+statusEl.innerText="Solve the puzzle";
+
+}catch(e){
+console.log(e);
+statusEl.innerText="Failed to load puzzle";
+}
 }
 
-/* START */
+/* INIT */
+game=new Chess();
+draw();
 
 loadPuzzle();
 
